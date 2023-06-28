@@ -1,0 +1,24 @@
+cmake_minimum_required(VERSION 3.22)
+
+project(dat-engine VERSION 1.0.0 DESCRIPTION "Top Level")
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED 1)
+
+# Ensure debug flag is set when posix
+IF(NOT MSVC)
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
+ENDIF()
+
+add_library(dat-engine STATIC)
+
+add_subdirectory(first-party)
+add_subdirectory(third-party)
+add_subdirectory(tools)
+add_subdirectory(dat-engine)
+
+#set(projectAssetDir "" CACHE FILEPATH "The asset directory for the project")
+#set(assetDest "${CMAKE_BINARY_DIR}/Engine" CACHE FILEPATH "Destination Path of the asset directory in the compiled project")
+
+# Examples
+add_subdirectory(examples)

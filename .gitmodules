@@ -1,0 +1,12 @@
+[submodule "third-party/vk-bootstrap"]
+	path = third-party/vk-bootstrap
+	url = https://github.com/charles-lunarg/vk-bootstrap.git
+[submodule "third-party/vulkan-memory-manager"]
+	path = third-party/vulkan-memory-manager
+	url = https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
+[submodule "first-party/dat-archive"]
+	path = first-party/dat-archive
+	url = https://github.com/jtljac/dat-archive
+[submodule "first-party/dat-vfs"]
+	path = first-party/dat-vfs
+	url = https://github.com/jtljac/dat-vfs
