@@ -10,7 +10,14 @@ IF(NOT MSVC)
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
 ENDIF()
 
-add_library(dat-engine STATIC)
+add_library(dat-engine STATIC dat-engine/maths/vector.h dat-engine/maths/vector/vec-forward.h dat-engine/maths/vector/vec3.h dat-engine/util/type-traits.h dat-engine/maths/numbers.h dat-engine/maths/common-maths.h)
+
+# Optimisations
+if(MSVC)
+    target_compile_options(dat-engine PUBLIC /arch:SSE4.1 /arch:AVX)
+else()
+    target_compile_options(dat-engine PUBLIC -march=native)
+endif()
 
 add_subdirectory(first-party)
 add_subdirectory(third-party)
