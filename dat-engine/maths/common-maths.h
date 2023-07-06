@@ -12,7 +12,7 @@
 #ifdef min
 #undef min
 #endif
-
+// TODO: Test min and max
 namespace DatMaths {
     /**
      * Get the square root of the given value

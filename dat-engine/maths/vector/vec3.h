@@ -12,8 +12,13 @@
 #include <maths/numbers.h>
 #include <maths/common-maths.h>
 
+// TODO: Create unit tests for each function
 namespace DatMaths {
     template<typename componentType>
+    /**
+     * A struct representing a 3 component vector
+     * @tparam componentType The type of the components of the vector
+     */
     struct Vector<3, componentType> {
         typedef Vector<3, componentType> vecType;
 
