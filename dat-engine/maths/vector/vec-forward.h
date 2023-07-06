@@ -7,6 +7,6 @@
 #include <util/type-traits.h>
 
 namespace DatMaths {
-    template<int size, integral vecType>
+    template<int size, numeric vecType>
     struct Vector;
 }

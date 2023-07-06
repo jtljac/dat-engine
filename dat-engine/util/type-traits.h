@@ -5,6 +5,7 @@
 #pragma once
 
 #include <type_traits>
+#include <concepts>
 
 template <typename T>
 concept integral = std::is_integral_v<T>;
@@ -14,6 +15,14 @@ concept floating_point = std::is_floating_point_v<T>;
 
 template <typename T>
 concept numeric = integral<T> || floating_point<T>;
+
+template<typename lhType, typename rhType>
+concept comparable_to = requires(lhType lh, rhType rh) {
+    {lh < rh} -> std::convertible_to<bool>;
+    {lh > rh} -> std::convertible_to<bool>;
+    {lh <= rh} -> std::convertible_to<bool>;
+    {lh >= rh} -> std::convertible_to<bool>;
+};
 
 
 namespace detail {
