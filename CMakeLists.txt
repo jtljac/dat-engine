@@ -5,6 +5,9 @@ project(dat-engine VERSION 1.0.0 DESCRIPTION "Top Level")
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED 1)
 
+set(DAT_ENGINE_TARGET_PLATFORM "linux" CACHE STRING "The target platform to build for")
+set_property(CACHE DAT_ENGINE_TARGET_PLATFORM PROPERTY STRINGS linux windows macos)
+
 # Ensure debug flag is set when posix
 IF(NOT MSVC)
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
