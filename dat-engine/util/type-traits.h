@@ -24,7 +24,6 @@ concept comparable_to = requires(lhType lh, rhType rh) {
     {lh >= rh} -> std::convertible_to<bool>;
 };
 
-
 namespace detail {
     /**
      * A hack to prevent compilation errors with the EnableIf SFINAE shortcut

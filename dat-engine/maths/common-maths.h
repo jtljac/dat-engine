@@ -91,6 +91,8 @@ namespace DatMaths {
 
     /**
      * Get a value a certain percentage (determined by the alpha) between the two points a and b.
+     * <br>
+     * Should be faster but less accurate than std::lerp(), which has a lot going on to ensure accuracy
      * @tparam type The type of be values being interpolated
      * @tparam alphaType The type of the the value used to interpolate
      * @param a The start value
