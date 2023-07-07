@@ -16,48 +16,38 @@
 namespace DatMaths {
     template<typename componentType>
     /**
-     * A struct representing a 3 component vector
+     * A struct representing a 2 component vector
      * @tparam componentType The type of the components of the vector
      */
-    struct Vector<3, componentType> {
-        typedef Vector<3, componentType> vecType;
+    struct Vector<2, componentType> {
+        typedef Vector<2, componentType> vecType;
 
         /** The components of the vector */
-        componentType x, y, z;
+        componentType x, y;
 
         /* -------------------------------------------- */
         /*  Statics                                     */
         /* -------------------------------------------- */
 
         /**
-         * A unit vector that faces north (0, 0, 1)
-         */
-        const static vecType NORTH;
-
-        /**
-         * A unit vector that faces east
-         */
-        const static vecType EAST;
-
-        /**
-         * A unit vector that faces south
-         */
-        const static vecType SOUTH;
-
-        /**
-         * A unit vector that faces west
-         */
-        const static vecType WEST;
-
-        /**
-         * A unit vector that faces up
+         * A unit vector that faces up (0, -1)
          */
         const static vecType UP;
 
         /**
-         * A unit vector that faces down
+         * A unit vector that faces right (1, 0)
+         */
+        const static vecType RIGHT;
+
+        /**
+         * A unit vector that faces down (0, 1)
          */
         const static vecType DOWN;
+
+        /**
+         * A unit vector that faces left (-1, 0)
+         */
+        const static vecType LEFT;
 
         /* -------------------------------------------- */
         /*  Initialisation                              */
@@ -66,74 +56,59 @@ namespace DatMaths {
         /**
          * Initialises all components to 0
          */
-        Vector() : x(0), y(0), z(0) {}
+        Vector() : x(0), y(0) {}
 
         /**
          * Initialises all components to the same value
          * @param scalar The value to initialise the components to
          */
-        explicit Vector(componentType scalar) : x(scalar), y(scalar), z(scalar) {}
+        explicit Vector(componentType scalar) : x(scalar), y(scalar) {}
 
         /**
          * Initialises each component to their given value
          * @param x The value to initialise the x component to
          * @param y The value to initialise the y component to
-         * @param z The value to initialise the z component to
          */
-        Vector(componentType x, componentType y, componentType z) : x(x), y(y), z(z)  {}
+        Vector(componentType x, componentType y) : x(x), y(y)  {}
 
         /* -------------------------------------------- */
 
         // Copy
         // Vec2
         /**
-         * Initialise using just a Vec2, Z will be initialised to 0
+         * Initialise using another Vec2
          * @tparam otherType The type of the Vec2
-         * @param otherVec The Vec2 to source the values of the X and Y components from
+         * @param otherVec The other Vec2 to source the values of the X and Y components from
          */
         template<typename otherType>
         explicit Vector(const Vector<2, otherType>& otherVec) : x(static_cast<componentType>(otherVec.x)),
-                                                                y(static_cast<componentType>(otherVec.y)),
-                                                                z(0) {}
-
-        /**
-         * Initialise using a Vec2 and a z component
-         * @tparam otherType The type of the Vec2
-         * @param otherVec The Vec2 to source the values of the X and Y components from
-         * @param z The value of the z component
-         */
-        template<typename otherType>
-        Vector(const Vector<2, otherType>& otherVec, componentType z) : x(static_cast<componentType>(otherVec.x)),
-                                                                        y(static_cast<componentType>(otherVec.y)),
-                                                                        z(z) {}
+                                                       y(static_cast<componentType>(otherVec.y)) {}
 
         // Vec3
         /**
-         * Initialise using the values from another Vec3
-         * @tparam otherType The type of the other Vec3
-         * @param otherVec The other Vec3 to source the values of the X, Y, and Z components from
+         * Initialise using the values from a Vec3
+         * @tparam otherType The type of the Vec3
+         * @param otherVec The Vec3 to source the values of the X and Y components from (z is discarded)
          */
         template<typename otherType>
         explicit Vector(const Vector<3, otherType>& otherVec) : x(static_cast<componentType>(otherVec.x)),
-                                                                y(static_cast<componentType>(otherVec.y)),
-                                                                z(static_cast<componentType>(otherVec.z)) {}
+                                                       y(static_cast<componentType>(otherVec.y)) {}
 
         // Vec4
         /**
          * Initialise using the values from a Vec4
          * @tparam otherType The type of the Vec4
-         * @param otherVec The Vec4 to source the values of the X,Y, and Z components from (w is discarded)
+         * @param otherVec The Vec4 to source the values of the X and Y components from (z and w is discarded)
          */
         template<typename otherType>
         explicit Vector(const Vector<4, otherType>& otherVec) : x(static_cast<componentType>(otherVec.x)),
-                                                                y(static_cast<componentType>(otherVec.y)),
-                                                                z(static_cast<componentType>(otherVec.z)) {}
+                                                       y(static_cast<componentType>(otherVec.y)) {}
 
         /* -------------------------------------------- */
 
         // Assignment operator
         template<typename otherType>
-        vecType& operator=(const Vector<3, otherType>& otherVec);
+        vecType& operator=(const Vector<2, otherType>& otherVec);
 
         /* -------------------------------------------- */
         /*  Maths                                       */
@@ -141,7 +116,7 @@ namespace DatMaths {
 
         // Add Vector
         template<typename otherType>
-        vecType operator+(const Vector<3, otherType>& rhs) const;
+        vecType operator+(const Vector<2, otherType>& rhs) const;
 
         // Add Scalar
         template<typename otherType>
@@ -149,7 +124,7 @@ namespace DatMaths {
 
         // Add Vector In-Place
         template<typename otherType>
-        vecType& operator+=(const Vector<3, otherType>& rhs) const;
+        vecType& operator+=(const Vector<2, otherType>& rhs) const;
 
         // Add Scalar In-Place
         template<typename otherType>
@@ -159,7 +134,7 @@ namespace DatMaths {
 
         // Minus Vector
         template<typename otherType>
-        vecType operator-(const Vector<3, otherType>& rhs) const;
+        vecType operator-(const Vector<2, otherType>& rhs) const;
 
         // Minus Scalar
         template<typename otherType>
@@ -167,7 +142,7 @@ namespace DatMaths {
 
         // Minus Vector In-Place
         template<typename otherType>
-        vecType& operator-=(const Vector<3, otherType>& rhs) const;
+        vecType& operator-=(const Vector<2, otherType>& rhs) const;
 
         // Minus Scalar In-Place
         template<typename otherType>
@@ -182,7 +157,7 @@ namespace DatMaths {
 
         // Multiply by Components
         template<typename otherType>
-        vecType operator*(const Vector<3, otherType>& rhs) const;
+        vecType operator*(const Vector<2, otherType>& rhs) const;
 
         // Multiply by Scalar
         template<typename otherType>
@@ -190,7 +165,7 @@ namespace DatMaths {
 
         // Multiply by Components In-Place
         template<typename otherType>
-        vecType& operator*=(const Vector<3, otherType>& rhs) const;
+        vecType& operator*=(const Vector<2, otherType>& rhs) const;
 
         // Multiply by Scalar In-Place
         template<typename otherType>
@@ -200,7 +175,7 @@ namespace DatMaths {
 
         // Divide by Components
         template<typename otherType>
-        vecType operator/(const Vector<3, otherType>& rhs) const;
+        vecType operator/(const Vector<2, otherType>& rhs) const;
 
         // Divide by Scalar
         template<typename otherType>
@@ -208,7 +183,7 @@ namespace DatMaths {
 
         // Divide by Components In-Place
         template<typename otherType>
-        vecType& operator/=(const Vector<3, otherType>& rhs) const;
+        vecType& operator/=(const Vector<2, otherType>& rhs) const;
 
         // Divide by Scalar In-Place
         template<typename otherType>
@@ -223,18 +198,7 @@ namespace DatMaths {
          * @return the dot product of this vector and the given vector
          */
         template<typename otherType>
-        componentType dotProduct(Vector<3, otherType> otherVec) const;
-
-        /* -------------------------------------------- */
-
-        /**
-         * Get the dot product of this vector and a given vector
-         * @tparam otherType The type of the other vector
-         * @param otherVec The other vector
-         * @return the dot product of this vector and the given vector
-         */
-        template<typename otherType>
-        vecType crossProduct(Vector<3, otherType> otherVec) const;
+        componentType dotProduct(Vector<2, otherType> otherVec) const;
 
         /* -------------------------------------------- */
 
@@ -268,12 +232,19 @@ namespace DatMaths {
         /* -------------------------------------------- */
 
         /**
-         * Get a Vec3 that is perpendicular to this one and the given axis
-         *
-         * @param axis The axis to use to determine the direction of the perpendicular vector
-         * @return a Vec3 that is perpendicular to this one
+         * Get a Vec2 that is perpendicular to this one
+         * <br>
+         * There are two possible perpendicular vectors, clockwise and anti-clockwise, which direction is chosen based
+         * on the value of the clockwise parameter
+         * <br>
+         * Clockwise: ┴ -> ├
+         * <br>
+         * anti-clockwise: ┴ -> ┤
+         * @param clockwise Whether to get the clockwise perpendicular, if false then the function will return the
+         * anti-clockwise perpendicular
+         * @return a Vec2 that is perpendicular to this one
          */
-        vecType perpendicular(vecType axis) const;
+        vecType perpendicular(bool clockwise) const;
 
         /* -------------------------------------------- */
         /*  Comparison                                  */
@@ -281,7 +252,7 @@ namespace DatMaths {
 
         // Equals
         template<typename otherType>
-        bool operator==(const Vector<3, otherType>& rhs) const;
+        bool operator==(const Vector<2, otherType>& rhs) const;
 
         /**
          * Check if this vector is equal to another within a small tolerances
@@ -291,36 +262,36 @@ namespace DatMaths {
          * @return true if equal within a tolerance
          */
         template<typename otherType>
-        bool equal(const Vector<3, otherType>& rhs, componentType tolerance = static_cast<componentType>(numbers::tinyNumber)) const;
+        bool equal(const Vector<2, otherType>& rhs, componentType tolerance = static_cast<componentType>(numbers::tinyNumber)) const;
 
         // Not Equal
         template<typename otherType>
-        bool operator!=(const Vector<3, otherType>& rhs) const;
+        bool operator!=(const Vector<2, otherType>& rhs) const;;
 
         /* -------------------------------------------- */
 
         // Less than
         template<typename otherType>
-        bool operator<(const Vector<3, otherType>& rhs) const;
+        bool operator<(const Vector<2, otherType>& rhs) const;
 
         // Greater Than
         template<typename otherType>
-        bool operator>(const Vector<3, otherType>& rhs) const;
+        bool operator>(const Vector<2, otherType>& rhs) const;
 
         // Less than or equal
         template<typename otherType>
-        bool operator<=(const Vector<3, otherType>& rhs) const;
+        bool operator<=(const Vector<2, otherType>& rhs) const;
 
         // Greater than or equal
         template<typename otherType>
-        bool operator>=(const Vector<3, otherType>& rhs) const;
+        bool operator>=(const Vector<2, otherType>& rhs) const;
 
         /* -------------------------------------------- */
 
         // UFO Operator
         template<typename otherType>
-        std::strong_ordering operator<=>(const Vector<3, otherType>& rhs) const;
+        std::strong_ordering operator<=>(const Vector<2, otherType>& rhs) const;
     };
 
-#include "source/vec3.inl"
+#include "source/vec2.inl"
 }
