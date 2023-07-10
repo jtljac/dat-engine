@@ -10,3 +10,6 @@
 [submodule "first-party/dat-vfs"]
 	path = first-party/dat-vfs
 	url = https://github.com/jtljac/dat-vfs
+[submodule "third-party/spdlog"]
+	path = third-party/spdlog
+	url = https://github.com/gabime/spdlog.git
