@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.22)
 
 # Packages on the system
 # GLFW for window and Inputs
-find_package(glfw3 3.3 REQUIRED)
-target_link_libraries(dat-engine glfw)
+find_package(SDL2 REQUIRED)
+target_link_libraries(dat-engine SDL2::SDL2)
 
 # Vulkan for vulkan
 find_package(Vulkan REQUIRED)
