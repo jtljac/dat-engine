@@ -7,11 +7,14 @@
 
 #include "rendering/irenderer.h"
 
-#define VULKAN_HPP_NO_EXCEPTIONS = 1
+#define VULKAN_HPP_NO_EXCEPTIONS
 #include <vulkan/vulkan.hpp>
 
 class VulkanRenderer : public IRenderer {
 protected:
+    vk::Instance instance;
+    vk::PhysicalDevice physicalDevice;
+    vk::Device device;
 public:
     bool initialise() override;
 
