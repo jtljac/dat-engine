@@ -10,7 +10,7 @@
 
 struct SDL_Window;
 
-class iwindow {
+class IWindow {
 protected:
     SDL_Window* window;
 
