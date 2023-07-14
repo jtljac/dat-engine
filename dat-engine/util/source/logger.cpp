@@ -31,12 +31,12 @@ void DatLog::init() {
     CORE_INFO("Logger Initialised");
 }
 
-std::shared_ptr<spdlog::logger> DatLog::getCoreLogger() {
+std::shared_ptr<spdlog::logger>& DatLog::getCoreLogger() {
     assert(DatLog::core != nullptr);
     return DatLog::core;
 }
 
-std::shared_ptr<spdlog::logger> DatLog::getGameLogger() {
+std::shared_ptr<spdlog::logger>& DatLog::getGameLogger() {
     assert(DatLog::game != nullptr);
     return DatLog::game;
 }

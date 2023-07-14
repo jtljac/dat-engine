@@ -18,8 +18,8 @@ class DatLog {
 public:
     static void init();
 
-    static std::shared_ptr<spdlog::logger> getCoreLogger();
-    static std::shared_ptr<spdlog::logger> getGameLogger();
+    static std::shared_ptr<spdlog::logger>& getCoreLogger();
+    static std::shared_ptr<spdlog::logger>& getGameLogger();
 };
 
 
