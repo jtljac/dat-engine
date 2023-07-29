@@ -7,6 +7,7 @@
 #include "vector/vec2.h"
 #include "vector/vec3.h"
 #include "vector/vec4.h"
+#include "vector/vecn.h"
 
 namespace DatMaths {
     /** A floating point 2 component vector */
@@ -48,4 +49,26 @@ namespace DatMaths {
 
     /** A double precision floating point 4 component vector */
     using dvec4 = Vector<4, double>;
+
+    /* -------------------------------------------- */
+
+    /** A floating point n component vector */
+    template<int size>
+    requires (size > 4)
+    using vecn = Vector<size, float>;
+
+    /** A integer n component vector */
+    template<int size>
+    requires (size > 4)
+    using ivecn = Vector<size, int>;
+
+    /** A unsigned integer n component vector */
+    template<int size>
+    requires (size > 4)
+    using uvecn = Vector<size, unsigned int>;
+
+    /** A double precision floating point n component vector */
+    template<int size>
+    requires (size > 4)
+    using dvecn = Vector<size, double>;
 }
