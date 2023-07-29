@@ -131,6 +131,26 @@ namespace DatMaths {
         vecType& operator=(const Vector<4, otherType>& otherVec);
 
         /* -------------------------------------------- */
+        /*  getters                                     */
+        /* -------------------------------------------- */
+
+        const componentType& operator[](const size_t pos) const {
+            assert(pos < 4);
+            if (pos == 0) return x;
+            else if (pos == 1) return y;
+            else if (pos == 2) return z;
+            else return w;
+        }
+
+        componentType& operator[](const size_t pos) {
+            assert(pos < 4);
+            if (pos == 0) return x;
+            else if (pos == 1) return y;
+            else if (pos == 2) return z;
+            else return w;
+        }
+
+        /* -------------------------------------------- */
         /*  Maths                                       */
         /* -------------------------------------------- */
 
@@ -144,11 +164,11 @@ namespace DatMaths {
 
         // Add Vector In-Place
         template<typename otherType>
-        vecType& operator+=(const Vector<4, otherType>& rhs) const;
+        vecType& operator+=(const Vector<4, otherType>& rhs);
 
         // Add Scalar In-Place
         template<typename otherType>
-        vecType& operator+=(otherType rhs) const;
+        vecType& operator+=(otherType rhs);
 
         /* -------------------------------------------- */
 
@@ -162,11 +182,11 @@ namespace DatMaths {
 
         // Minus Vector In-Place
         template<typename otherType>
-        vecType& operator-=(const Vector<4, otherType>& rhs) const;
+        vecType& operator-=(const Vector<4, otherType>& rhs);
 
         // Minus Scalar In-Place
         template<typename otherType>
-        vecType& operator-=(otherType rhs) const;
+        vecType& operator-=(otherType rhs);
 
         /* -------------------------------------------- */
 
@@ -185,11 +205,11 @@ namespace DatMaths {
 
         // Multiply by Components In-Place
         template<typename otherType>
-        vecType& operator*=(const Vector<4, otherType>& rhs) const;
+        vecType& operator*=(const Vector<4, otherType>& rhs);
 
         // Multiply by Scalar In-Place
         template<typename otherType>
-        vecType& operator*=(otherType rhs) const;
+        vecType& operator*=(otherType rhs);
 
         /* -------------------------------------------- */
 
@@ -203,11 +223,11 @@ namespace DatMaths {
 
         // Divide by Components In-Place
         template<typename otherType>
-        vecType& operator/=(const Vector<4, otherType>& rhs) const;
+        vecType& operator/=(const Vector<4, otherType>& rhs);
 
         // Divide by Scalar In-Place
         template<typename otherType>
-        vecType& operator/=(otherType rhs) const;
+        vecType& operator/=(otherType rhs);
 
         /* -------------------------------------------- */
 

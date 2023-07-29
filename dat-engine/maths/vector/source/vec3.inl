@@ -59,7 +59,7 @@ Vector<3, componentType> Vector<3, componentType>::operator+(const otherType rhs
 
 template<typename componentType>
 template<typename otherType>
-Vector<3, componentType>& Vector<3, componentType>::operator+=(const Vector<3, otherType>& rhs) const {
+Vector<3, componentType>& Vector<3, componentType>::operator+=(const Vector<3, otherType>& rhs) {
     x += static_cast<componentType>(rhs.x);
     y += static_cast<componentType>(rhs.y);
     z += static_cast<componentType>(rhs.z);
@@ -69,7 +69,7 @@ Vector<3, componentType>& Vector<3, componentType>::operator+=(const Vector<3, o
 
 template<typename componentType>
 template<typename otherType>
-Vector<3, componentType>& Vector<3, componentType>::operator+=(const otherType rhs) const {
+Vector<3, componentType>& Vector<3, componentType>::operator+=(const otherType rhs) {
     x += static_cast<componentType>(rhs);
     y += static_cast<componentType>(rhs);
     z += static_cast<componentType>(rhs);
@@ -101,7 +101,7 @@ Vector<3, componentType> Vector<3, componentType>::operator-(const otherType rhs
 
 template<typename componentType>
 template<typename otherType>
-Vector<3, componentType>& Vector<3, componentType>::operator-=(const Vector<3, otherType>& rhs) const {
+Vector<3, componentType>& Vector<3, componentType>::operator-=(const Vector<3, otherType>& rhs) {
     x -= static_cast<componentType>(rhs.x);
     y -= static_cast<componentType>(rhs.y);
     z -= static_cast<componentType>(rhs.z);
@@ -111,7 +111,7 @@ Vector<3, componentType>& Vector<3, componentType>::operator-=(const Vector<3, o
 
 template<typename componentType>
 template<typename otherType>
-Vector<3, componentType>& Vector<3, componentType>::operator-=(const otherType rhs) const {
+Vector<3, componentType>& Vector<3, componentType>::operator-=(const otherType rhs) {
     x -= static_cast<componentType>(rhs);
     y -= static_cast<componentType>(rhs);
     z -= static_cast<componentType>(rhs);
@@ -154,7 +154,7 @@ Vector<3, componentType> Vector<3, componentType>::operator*(const otherType rhs
 
 template<typename componentType>
 template<typename otherType>
-Vector<3, componentType>& Vector<3, componentType>::operator*=(const Vector<3, otherType>& rhs) const {
+Vector<3, componentType>& Vector<3, componentType>::operator*=(const Vector<3, otherType>& rhs) {
     x *= static_cast<componentType>(rhs.x);
     y *= static_cast<componentType>(rhs.y);
     z *= static_cast<componentType>(rhs.z);
@@ -164,7 +164,7 @@ Vector<3, componentType>& Vector<3, componentType>::operator*=(const Vector<3, o
 
 template<typename componentType>
 template<typename otherType>
-Vector<3, componentType>& Vector<3, componentType>::operator*=(const otherType rhs) const {
+Vector<3, componentType>& Vector<3, componentType>::operator*=(const otherType rhs) {
     x *= static_cast<componentType>(rhs);
     y *= static_cast<componentType>(rhs);
     z *= static_cast<componentType>(rhs);
@@ -196,7 +196,7 @@ Vector<3, componentType> Vector<3, componentType>::operator/(const otherType rhs
 
 template<typename componentType>
 template<typename otherType>
-Vector<3, componentType>& Vector<3, componentType>::operator/=(const Vector<3, otherType>& rhs) const {
+Vector<3, componentType>& Vector<3, componentType>::operator/=(const Vector<3, otherType>& rhs) {
     x /= static_cast<componentType>(rhs.x);
     y /= static_cast<componentType>(rhs.y);
     z /= static_cast<componentType>(rhs.z);
@@ -206,7 +206,7 @@ Vector<3, componentType>& Vector<3, componentType>::operator/=(const Vector<3, o
 
 template<typename componentType>
 template<typename otherType>
-Vector<3, componentType>& Vector<3, componentType>::operator/=(const otherType rhs) const {
+Vector<3, componentType>& Vector<3, componentType>::operator/=(const otherType rhs) {
     x /= static_cast<componentType>(rhs);
     y /= static_cast<componentType>(rhs);
     z /= static_cast<componentType>(rhs);
