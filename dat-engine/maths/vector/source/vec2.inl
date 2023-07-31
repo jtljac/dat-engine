@@ -27,6 +27,22 @@ Vector<2, componentType>& Vector<2, componentType>::operator=(const Vector<2, ot
 }
 
 /* -------------------------------------------- */
+/*  getters                                     */
+/* -------------------------------------------- */
+
+template<typename componentType>
+componentType& Vector<2, componentType>::operator[](const size_t pos) {
+    assert(pos < 2);
+    return (reinterpret_cast<componentType*>(&x))[pos];
+}
+
+template<typename componentType>
+const componentType& Vector<2, componentType>::operator[](const size_t pos) const {
+    assert(pos < 2);
+    return (reinterpret_cast<const componentType*>(&x))[pos];
+}
+
+/* -------------------------------------------- */
 /*  Maths                                       */
 /* -------------------------------------------- */
 
@@ -229,6 +245,11 @@ Vector<2, componentType> Vector<2, componentType>::normalised() const {
             x * invLength,
             y * invLength
     };
+}
+
+template<typename componentType>
+bool Vector<2, componentType>::isNormalised(componentType tolerance) const {
+    return  std::abs(1 - lengthSquared()) < tolerance;
 }
 
 /* -------------------------------------------- */

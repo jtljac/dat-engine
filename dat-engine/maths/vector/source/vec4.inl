@@ -13,6 +13,22 @@ Vector<4, componentType>& Vector<4, componentType>::operator=(const Vector<4, ot
 }
 
 /* -------------------------------------------- */
+/*  getters                                     */
+/* -------------------------------------------- */
+
+template<typename componentType>
+componentType& Vector<4, componentType>::operator[](const size_t pos) {
+    assert(pos < 4);
+    return (reinterpret_cast<componentType*>(&x))[pos];
+}
+
+template<typename componentType>
+const componentType& Vector<4, componentType>::operator[](const size_t pos) const {
+    assert(pos < 4);
+    return (reinterpret_cast<const componentType*>(&x))[pos];
+}
+
+/* -------------------------------------------- */
 /*  Maths                                       */
 /* -------------------------------------------- */
 
@@ -257,6 +273,11 @@ Vector<4, componentType> Vector<4, componentType>::normalised() const {
             z * invLength,
             w * invLength
     };
+}
+
+template<typename componentType>
+bool Vector<4, componentType>::isNormalised(componentType tolerance) const {
+    return std::abs(1 - lengthSquared()) < tolerance;
 }
 
 /* -------------------------------------------- */

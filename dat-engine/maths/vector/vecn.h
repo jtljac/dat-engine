@@ -46,8 +46,16 @@ namespace DatMaths {
         }
 
         /**
-         * Initialises each component to their given value from an array
-         * @param components The components to use as an array
+         * Initialises each component using values from a list
+         * @param components The list to get the components from
+         */
+        Vector(const std::initializer_list<componentType>& components) : components(components) {
+            assert(components.size() == size);
+        };
+
+        /**
+         * Initialises each component to a given value
+         * @param args The components of the vector
          */
         Vector(const convertsTo<componentType> auto&... args)
         requires (sizeof...(args) == size)
@@ -225,7 +233,7 @@ namespace DatMaths {
         template<typename otherType>
         vecType& operator*=(const Vector<size, otherType>& rhs) {
             for (int i = 0; i < size; ++i) {
-                (*this)[i] =* rhs[i];
+                (*this)[i] *= rhs[i];
             }
 
             return *this;
@@ -235,7 +243,7 @@ namespace DatMaths {
         template<typename otherType>
         vecType& operator*=(otherType rhs) {
             for (int i = 0; i < size; ++i) {
-                (*this)[i] =* rhs;
+                (*this)[i] *= rhs;
             }
 
             return *this;
@@ -353,6 +361,14 @@ namespace DatMaths {
             for (int i = 0; i < size; ++i) {
                 newVec[i] = (*this)[i] * invLength;
             }
+        }
+
+        /**
+         * Get if this vector is normalised (has a length of one)
+         * @return true if normalised
+         */
+        bool isNormalised(componentType tolerance = static_cast<componentType>(numbers::normalisedTolerance)) const {
+            return lengthSquared() < tolerance;
         }
 
         /* -------------------------------------------- */

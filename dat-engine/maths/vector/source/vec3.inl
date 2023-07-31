@@ -34,6 +34,22 @@ Vector<3, componentType>& Vector<3, componentType>::operator=(const Vector<3, ot
 }
 
 /* -------------------------------------------- */
+/*  getters                                     */
+/* -------------------------------------------- */
+
+template<typename componentType>
+componentType& Vector<3, componentType>::operator[](const size_t pos) {
+    assert(pos < 3);
+    return (reinterpret_cast<componentType*>(&x))[pos];
+}
+
+template<typename componentType>
+const componentType& Vector<3, componentType>::operator[](const size_t pos) const {
+    assert(pos < 3);
+    return (reinterpret_cast<const componentType*>(&x))[pos];
+}
+
+/* -------------------------------------------- */
 /*  Maths                                       */
 /* -------------------------------------------- */
 
@@ -269,6 +285,11 @@ Vector<3, componentType> Vector<3, componentType>::normalised() const {
             y * invLength,
             z * invLength
     };
+}
+
+template<typename componentType>
+bool Vector<3, componentType>::isNormalised(componentType tolerance) const {
+    return std::abs(1 - lengthSquared()) < tolerance;
 }
 
 /* -------------------------------------------- */

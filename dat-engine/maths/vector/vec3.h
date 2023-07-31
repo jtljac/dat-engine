@@ -84,6 +84,29 @@ namespace DatMaths {
         /* -------------------------------------------- */
 
         // Copy
+        // Vec1
+        /**
+         * Initialise using just a Vec1, the Y, Z and W components will be initialised to 0
+         * @tparam otherType The type of the Vec1
+         * @param otherVec The Vec1 to source the values of the X component from
+         */
+        template<typename otherType>
+        explicit Vector(const Vector<1, otherType>& otherVec) : x(static_cast<componentType>(otherVec.x)),
+                                                                y(0),
+                                                                z(0) {}
+
+        /**
+          * Initialise using a Vec1, a Y component, and a Z component
+          * @tparam otherType The type of the Vec1
+          * @param otherVec The Vec1 to source the value of the X component from
+          * @param y The value of the Y component
+          * @param z The value of the Z component
+          */
+        template<typename otherType>
+        Vector(const Vector<1, otherType>& otherVec, componentType y, componentType z) : x(static_cast<componentType>(otherVec.x)),
+                                                                                                          y(y),
+                                                                                                          z(z) {}
+
         // Vec2
         /**
          * Initialise using just a Vec2, Z will be initialised to 0
@@ -128,6 +151,18 @@ namespace DatMaths {
                                                                 y(static_cast<componentType>(otherVec.y)),
                                                                 z(static_cast<componentType>(otherVec.z)) {}
 
+        // Vecn
+        /**
+         * Initialise using the values from a Vecn
+         * @tparam otherType The type of the Vecn
+         * @param otherVec The Vecn to source the values of the X and Y components from
+         */
+        template<int otherSize, typename otherType>
+        requires (otherSize > 4)
+        explicit Vector(const Vector<otherSize, otherType>& otherVec) : x(static_cast<componentType>(otherVec[0])),
+                                                                        y(static_cast<componentType>(otherVec[1])),
+                                                                        z(static_cast<componentType>(otherVec[2])) {}
+
         /* -------------------------------------------- */
 
         // Assignment operator
@@ -138,19 +173,9 @@ namespace DatMaths {
         /*  getters                                     */
         /* -------------------------------------------- */
 
-        const componentType& operator[](const size_t pos) const {
-            assert(pos < 3);
-            if (pos == 0) return x;
-            else if (pos == 1) return y;
-            else return z;
-        }
+        const componentType& operator[](size_t pos) const;
 
-        componentType& operator[](const size_t pos) {
-            assert(pos < 3);
-            if (pos == 0) return x;
-            else if (pos == 1) return y;
-            else return z;
-        }
+        componentType& operator[](size_t pos);
 
         /* -------------------------------------------- */
         /*  Maths                                       */
@@ -281,6 +306,12 @@ namespace DatMaths {
          * @return a normalised copy of this vector
          */
         vecType normalised() const;
+
+        /**
+         * Get if this vector is normalised (has a length of one)
+         * @return true if normalised
+         */
+        bool isNormalised(componentType tolerance = static_cast<componentType>(numbers::normalisedTolerance)) const;
 
         /* -------------------------------------------- */
 

@@ -4,12 +4,27 @@
 
 #pragma once
 
+#include "vector/vec1.h"
 #include "vector/vec2.h"
 #include "vector/vec3.h"
 #include "vector/vec4.h"
 #include "vector/vecn.h"
 
 namespace DatMaths {
+    /** A floating point 1 component vector */
+    using vec1 = Vector<1, float>;
+
+    /** An integer 1 component vector */
+    using ivec1 = Vector<1, int>;
+
+    /** An unsigned integer 1 component vector */
+    using uvec1 = Vector<1, unsigned int>;
+
+    /** A double precision floating point 1 component vector */
+    using dvec1 = Vector<1, double>;
+
+    /* -------------------------------------------- */
+
     /** A floating point 2 component vector */
     using vec2 = Vector<2, float>;
 

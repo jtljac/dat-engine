@@ -27,7 +27,7 @@ template <typename T, typename exactType>
 concept exactClass = std::same_as<T, exactType>;
 
 template <typename T, typename convertsToType>
-concept convertsTo = std::convertible_to<T, convertToType>;
+concept convertsTo = std::convertible_to<T, convertsToType>;
 
 template<typename lhType, typename rhType>
 concept comparable_to = requires(lhType lh, rhType rh) {

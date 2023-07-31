@@ -11,7 +11,6 @@
 #include <maths/numbers.h>
 #include <maths/common-maths.h>
 
-// TODO: Create unit tests for each function
 namespace DatMaths {
     template<typename componentType>
     /**
@@ -51,6 +50,32 @@ namespace DatMaths {
         /* -------------------------------------------- */
 
         // Copy
+        // Vec1
+        /**
+         * Initialise using just a Vec1, the Y, Z and W components will be initialised to 0
+         * @tparam otherType The type of the Vec1
+         * @param otherVec The Vec1 to source the values of the X component from
+         */
+        template<typename otherType>
+        explicit Vector(const Vector<1, otherType>& otherVec) : x(static_cast<componentType>(otherVec.x)),
+                                                       y(0),
+                                                       z(0),
+                                                       w(0) {}
+
+        /**
+          * Initialise using a Vec1, a Y component, a Z component and a W component
+          * @tparam otherType The type of the Vec1
+          * @param otherVec The Vec1 to source the value of the X component from
+          * @param y The value of the Y component
+          * @param z The value of the Z component
+          * @param w The value of the W component
+          */
+        template<typename otherType>
+        Vector(const Vector<1, otherType>& otherVec, componentType y, componentType z, componentType w) : x(static_cast<componentType>(otherVec.x)),
+                                                                                         y(y),
+                                                                                         z(z),
+                                                                                         w(w) {}
+
         // Vec2
         /**
          * Initialise using just a Vec2, the Z and W components will be initialised to 0
@@ -58,7 +83,7 @@ namespace DatMaths {
          * @param otherVec The Vec2 to source the values of the X and Y components from
          */
         template<typename otherType>
-        Vector(const Vector<2, otherType>& otherVec) : x(static_cast<componentType>(otherVec.x)),
+        explicit Vector(const Vector<2, otherType>& otherVec) : x(static_cast<componentType>(otherVec.x)),
                                                                                          y(static_cast<componentType>(otherVec.y)),
                                                                                          z(0),
                                                                                          w(0) {}
@@ -124,6 +149,19 @@ namespace DatMaths {
                                                        z(static_cast<componentType>(otherVec.z)),
                                                        w(static_cast<componentType>(otherVec.w)) {}
 
+        // Vecn
+        /**
+         * Initialise using the values from a Vecn
+         * @tparam otherType The type of the Vecn
+         * @param otherVec The Vecn to source the values of the X and Y components from
+         */
+        template<int otherSize, typename otherType>
+        requires (otherSize > 4)
+        explicit Vector(const Vector<otherSize, otherType>& otherVec) : x(static_cast<componentType>(otherVec[0])),
+                                                                        y(static_cast<componentType>(otherVec[1])),
+                                                                        z(static_cast<componentType>(otherVec[2])),
+                                                                        w(static_cast<componentType>(otherVec[3])) {}
+
         /* -------------------------------------------- */
 
         // Assignment operator
@@ -134,21 +172,9 @@ namespace DatMaths {
         /*  getters                                     */
         /* -------------------------------------------- */
 
-        const componentType& operator[](const size_t pos) const {
-            assert(pos < 4);
-            if (pos == 0) return x;
-            else if (pos == 1) return y;
-            else if (pos == 2) return z;
-            else return w;
-        }
+        const componentType& operator[](size_t pos) const;
 
-        componentType& operator[](const size_t pos) {
-            assert(pos < 4);
-            if (pos == 0) return x;
-            else if (pos == 1) return y;
-            else if (pos == 2) return z;
-            else return w;
-        }
+        componentType& operator[](size_t pos);
 
         /* -------------------------------------------- */
         /*  Maths                                       */
@@ -268,6 +294,12 @@ namespace DatMaths {
          * @return a normalised copy of this vector
          */
         vecType normalised() const;
+
+        /**
+         * Get if this vector is normalised (has a length of one)
+         * @return true if normalised
+         */
+        bool isNormalised(componentType tolerance = static_cast<componentType>(numbers::normalisedTolerance)) const;
 
         /* -------------------------------------------- */
         /*  Comparison                                  */
