@@ -32,3 +32,11 @@ add_subdirectory(dat-engine)
 
 # Examples
 add_subdirectory(examples)
+
+set("DATENGINE_ENABLE_TESTS" OFF CACHE BOOL "Whether to enable testing")
+if (${DATENGINE_ENABLE_TESTS})
+    message("DatEngine Testing has been enabled")
+    add_subdirectory(tests)
+else()
+    message("Testing has been disabled")
+endif ()
