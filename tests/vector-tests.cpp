@@ -12,7 +12,7 @@ using namespace DatMaths;
 /*  Statics                                     */
 /* -------------------------------------------- */
 
-TEST_CASE("Vec2 Statics", "[DatMaths, Vec2, Statics]") {
+TEST_CASE("Vec2 Statics", "[DatMaths, Vector, Vec2, Statics]") {
     SECTION("Up") {
         DatMaths::vec2 up = DatMaths::vec2::UP;
         REQUIRE(up.x == 0);
@@ -38,18 +38,18 @@ TEST_CASE("Vec2 Statics", "[DatMaths, Vec2, Statics]") {
     }
 }
 
-TEST_CASE("Vec3 Statics", "[DatMaths, Vec3, Statics]") {
+TEST_CASE("Vec3 Statics", "[DatMaths, Vector, Vec3, Statics]") {
     SECTION("Up") {
         DatMaths::vec3 up = DatMaths::vec3::UP;
         REQUIRE(up.x == 0);
-        REQUIRE(up.y == -1);
+        REQUIRE(up.y == 1);
         REQUIRE(up.z == 0);
     }
 
     SECTION("Down") {
         DatMaths::vec3 down = DatMaths::vec3::DOWN;
         REQUIRE(down.x == 0);
-        REQUIRE(down.y == 1);
+        REQUIRE(down.y == -1);
         REQUIRE(down.z == 0);
     }
 
@@ -86,7 +86,7 @@ TEST_CASE("Vec3 Statics", "[DatMaths, Vec3, Statics]") {
 /*  Initialisation                              */
 /* -------------------------------------------- */
 
-TEST_CASE("Vec1 Initialisation", "[DatMaths, Vec1, Initialisation]") {
+TEST_CASE("Vec1 Initialisation", "[DatMaths, Vector, Vec1, Initialisation]") {
     SECTION("Zero") {
         DatMaths::vec1 vec;
         REQUIRE(vec.x == 0);
@@ -134,7 +134,7 @@ TEST_CASE("Vec1 Initialisation", "[DatMaths, Vec1, Initialisation]") {
     }
 }
 
-TEST_CASE("Vec2 Initialisation", "[DatMaths, Vec2, Initialisation]") {
+TEST_CASE("Vec2 Initialisation", "[DatMaths, Vector, Vec2, Initialisation]") {
     SECTION("Zero") {
         DatMaths::vec2 vec;
         REQUIRE(vec.x == 0);
@@ -205,7 +205,7 @@ TEST_CASE("Vec2 Initialisation", "[DatMaths, Vec2, Initialisation]") {
     }
 }
 
-TEST_CASE("Vec3 Initialisation", "[DatMaths, Vec3, Initialisation]") {
+TEST_CASE("Vec3 Initialisation", "[DatMaths, Vector, Vec3, Initialisation]") {
     SECTION("Zero") {
         DatMaths::vec3 vec;
         REQUIRE(vec.x == 0);
@@ -292,7 +292,7 @@ TEST_CASE("Vec3 Initialisation", "[DatMaths, Vec3, Initialisation]") {
     }
 }
 
-TEST_CASE("Vec4 Initialisation", "[DatMaths, Vec4, Initialisation]") {
+TEST_CASE("Vec4 Initialisation", "[DatMaths, Vector, Vec4, Initialisation]") {
     SECTION("Zero") {
         DatMaths::vec4 vec;
         REQUIRE(vec.x == 0);
@@ -399,7 +399,7 @@ TEST_CASE("Vec4 Initialisation", "[DatMaths, Vec4, Initialisation]") {
     }
 }
 
-TEST_CASE("Vecn Initialisation", "[DatMaths, Vecn, Initialisation]") {
+TEST_CASE("Vecn Initialisation", "[DatMaths, Vector, Vecn, Initialisation]") {
     SECTION("Zero") {
         DatMaths::vecn<7> vec;
         REQUIRE(vec[0] == 0);
@@ -544,7 +544,7 @@ TEST_CASE("Vecn Initialisation", "[DatMaths, Vecn, Initialisation]") {
 /*  Assignment                                  */
 /* -------------------------------------------- */
 
-TEST_CASE("Vec1 Assignment", "[DatMaths, Vec1, Assignment]") {
+TEST_CASE("Vec1 Assignment", "[DatMaths, Vector, Vec1, Assignment]") {
     DatMaths::vec1 lh(6);
     DatMaths::vec1 rh = lh;
 
@@ -552,7 +552,7 @@ TEST_CASE("Vec1 Assignment", "[DatMaths, Vec1, Assignment]") {
     REQUIRE(rh.x == lh.x);
 }
 
-TEST_CASE("Vec2 Assignment", "[DatMaths, Vec2, Assignment]") {
+TEST_CASE("Vec2 Assignment", "[DatMaths, Vector, Vec2, Assignment]") {
     DatMaths::vec2 lh(6, 2);
     DatMaths::vec2 rh = lh;
 
@@ -561,7 +561,7 @@ TEST_CASE("Vec2 Assignment", "[DatMaths, Vec2, Assignment]") {
     REQUIRE(rh.y == lh.y);
 }
 
-TEST_CASE("Vec3 Assignment", "[DatMaths, Vec3, Assignment]") {
+TEST_CASE("Vec3 Assignment", "[DatMaths, Vector, Vec3, Assignment]") {
     DatMaths::vec3 lh(6, 2, 5);
     DatMaths::vec3 rh = lh;
 
@@ -571,7 +571,7 @@ TEST_CASE("Vec3 Assignment", "[DatMaths, Vec3, Assignment]") {
     REQUIRE(rh.z == lh.z);
 }
 
-TEST_CASE("Vec4 Assignment", "[DatMaths, Vec4, Assignment]") {
+TEST_CASE("Vec4 Assignment", "[DatMaths, Vector, Vec4, Assignment]") {
     DatMaths::vec4 lh(6, 2, 5, 7);
     DatMaths::vec4 rh = lh;
 
@@ -582,7 +582,7 @@ TEST_CASE("Vec4 Assignment", "[DatMaths, Vec4, Assignment]") {
     REQUIRE(rh.w == lh.w);
 }
 
-TEST_CASE("Vecn Assignment", "[DatMaths, Vecn, Assignment]") {
+TEST_CASE("Vecn Assignment", "[DatMaths, Vector, Vecn, Assignment]") {
     DatMaths::vecn<7> lh{1.f, 2.f, 3.f, 4.f, 5.f, 6.f, 7.f};
     DatMaths::vecn<7> rh = lh;
 
@@ -600,20 +600,20 @@ TEST_CASE("Vecn Assignment", "[DatMaths, Vecn, Assignment]") {
 /*  Square Bracket Access                       */
 /* -------------------------------------------- */
 
-TEST_CASE("Vec1 Square Bracket Access", "[DatMaths, Vec1, Access]") {
+TEST_CASE("Vec1 Square Bracket Access", "[DatMaths, Vector, Vec1, Access]") {
     DatMaths::vec2 vec(6, 2);
 
     REQUIRE(vec.x == vec[0]);
 }
 
-TEST_CASE("Vec2 Square Bracket Access", "[DatMaths, Vec2, Access]") {
+TEST_CASE("Vec2 Square Bracket Access", "[DatMaths, Vector, Vec2, Access]") {
     DatMaths::vec2 vec(6, 2);
 
     REQUIRE(vec.x == vec[0]);
     REQUIRE(vec.y == vec[1]);
 }
 
-TEST_CASE("Vec3 Square Bracket Access", "[DatMaths, Vec3, Access]") {
+TEST_CASE("Vec3 Square Bracket Access", "[DatMaths, Vector, Vec3, Access]") {
     DatMaths::vec3 vec(6, 2, 5);
 
     REQUIRE(vec.x == vec[0]);
@@ -621,7 +621,7 @@ TEST_CASE("Vec3 Square Bracket Access", "[DatMaths, Vec3, Access]") {
     REQUIRE(vec.z == vec[2]);
 }
 
-TEST_CASE("Vec4 Square Bracket Access", "[DatMaths, Vec4, Access]") {
+TEST_CASE("Vec4 Square Bracket Access", "[DatMaths, Vector, Vec4, Access]") {
     DatMaths::vec4 vec(6, 2, 5, 7);
 
     REQUIRE(vec.x == vec[0]);
@@ -634,7 +634,7 @@ TEST_CASE("Vec4 Square Bracket Access", "[DatMaths, Vec4, Access]") {
 /*  Addition                                    */
 /* -------------------------------------------- */
 
-TEST_CASE("Vec1 Add", "[DatMaths, Vec1, Add]") {
+TEST_CASE("Vec1 Add", "[DatMaths, Vector, Vec1, Add]") {
     SECTION("Add Vector") {
         DatMaths::vec1 lh{5};
         DatMaths::vec1 rh{2};
@@ -666,7 +666,7 @@ TEST_CASE("Vec1 Add", "[DatMaths, Vec1, Add]") {
     }
 }
 
-TEST_CASE("Vec2 Add", "[DatMaths, Vec2, Add]") {
+TEST_CASE("Vec2 Add", "[DatMaths, Vector, Vec2, Add]") {
     SECTION("Add Vector") {
         DatMaths::vec2 lh{5, 6};
         DatMaths::vec2 rh{2, 3};
@@ -702,7 +702,7 @@ TEST_CASE("Vec2 Add", "[DatMaths, Vec2, Add]") {
     }
 }
 
-TEST_CASE("Vec3 Add", "[DatMaths, Vec3, Add]") {
+TEST_CASE("Vec3 Add", "[DatMaths, Vector, Vec3, Add]") {
     SECTION("Add Vector") {
         DatMaths::vec3 lh{5, 6, 7};
         DatMaths::vec3 rh{2, 3, 4};
@@ -742,7 +742,7 @@ TEST_CASE("Vec3 Add", "[DatMaths, Vec3, Add]") {
     }
 }
 
-TEST_CASE("Vec4 Add", "[DatMaths, Vec4, Add]") {
+TEST_CASE("Vec4 Add", "[DatMaths, Vector, Vec4, Add]") {
     SECTION("Add Vector") {
         DatMaths::vec4 lh{5, 6, 7, 8};
         DatMaths::vec4 rh{2, 3, 4, 5};
@@ -786,7 +786,7 @@ TEST_CASE("Vec4 Add", "[DatMaths, Vec4, Add]") {
     }
 }
 
-TEST_CASE("Vecn Add", "[DatMaths, Vecn, Add]") {
+TEST_CASE("Vecn Add", "[DatMaths, Vector, Vecn, Add]") {
     SECTION("Add Vector") {
         DatMaths::vecn<7> lh{5.f, 6.f, 7.f, 8.f, 9.f, 10.f, 11.f};
         DatMaths::vecn<7> rh{2.f, 3.f, 4.f, 5.f, 6.f, 7.f, 8.f};
@@ -846,7 +846,7 @@ TEST_CASE("Vecn Add", "[DatMaths, Vecn, Add]") {
 /*  Subtraction                                 */
 /* -------------------------------------------- */
 
-TEST_CASE("Vec2 Minus", "[DatMaths, Vec2, Minus]") {
+TEST_CASE("Vec2 Minus", "[DatMaths, Vector, Vec2, Minus]") {
     SECTION("Minus Vector") {
         DatMaths::vec2 lh{5, 6};
         DatMaths::vec2 rh{2, 3};
@@ -882,7 +882,7 @@ TEST_CASE("Vec2 Minus", "[DatMaths, Vec2, Minus]") {
     }
 }
 
-TEST_CASE("Vec1 Minus", "[DatMaths, Vec1, Minus]") {
+TEST_CASE("Vec1 Minus", "[DatMaths, Vector, Vec1, Minus]") {
     SECTION("Minus Vector") {
         DatMaths::vec1 lh{5};
         DatMaths::vec1 rh{2};
@@ -914,7 +914,7 @@ TEST_CASE("Vec1 Minus", "[DatMaths, Vec1, Minus]") {
     }
 }
 
-TEST_CASE("Vec3 Minus", "[DatMaths, Vec3, Minus]") {
+TEST_CASE("Vec3 Minus", "[DatMaths, Vector, Vec3, Minus]") {
     SECTION("Minus Vector") {
         DatMaths::vec3 lh{5, 6, 7};
         DatMaths::vec3 rh{2, 3, 4};
@@ -954,7 +954,7 @@ TEST_CASE("Vec3 Minus", "[DatMaths, Vec3, Minus]") {
     }
 }
 
-TEST_CASE("Vec4 Minus", "[DatMaths, Vec4, Minus]") {
+TEST_CASE("Vec4 Minus", "[DatMaths, Vector, Vec4, Minus]") {
     SECTION("Minus Vector") {
         DatMaths::vec4 lh{5, 6, 7, 8};
         DatMaths::vec4 rh{2, 3, 4, 5};
@@ -998,7 +998,7 @@ TEST_CASE("Vec4 Minus", "[DatMaths, Vec4, Minus]") {
     }
 }
 
-TEST_CASE("Vecn Minus", "[DatMaths, Vecn, Minus]") {
+TEST_CASE("Vecn Minus", "[DatMaths, Vector, Vecn, Minus]") {
     SECTION("Minus Vector") {
         DatMaths::vecn<7> lh{5.f, 6.f, 7.f, 8.f, 9.f, 10.f, 11.f};
         DatMaths::vecn<7> rh{2.f, 3.f, 4.f, 5.f, 6.f, 7.f, 8.f};
@@ -1058,7 +1058,7 @@ TEST_CASE("Vecn Minus", "[DatMaths, Vecn, Minus]") {
 /*  Negation                                    */
 /* -------------------------------------------- */
 
-TEST_CASE("Vec2 Negate", "[DatMaths, Vec2, Negate]") {
+TEST_CASE("Vec2 Negate", "[DatMaths, Vector, Vec2, Negate]") {
     SECTION("Minus Vector") {
         DatMaths::vec2 lh{5, -6};
 
@@ -1068,7 +1068,7 @@ TEST_CASE("Vec2 Negate", "[DatMaths, Vec2, Negate]") {
     }
 }
 
-TEST_CASE("Vec1 Negate", "[DatMaths, Vec1, Negate]") {
+TEST_CASE("Vec1 Negate", "[DatMaths, Vector, Vec1, Negate]") {
     SECTION("Minus Vector") {
         DatMaths::vec1 lh{5};
 
@@ -1077,7 +1077,7 @@ TEST_CASE("Vec1 Negate", "[DatMaths, Vec1, Negate]") {
     }
 }
 
-TEST_CASE("Vec3 Negate", "[DatMaths, Vec3, Negate]") {
+TEST_CASE("Vec3 Negate", "[DatMaths, Vector, Vec3, Negate]") {
     DatMaths::vec3 lh{5, -6, 7};
 
     DatMaths::vec3 newVec = -lh;
@@ -1087,7 +1087,7 @@ TEST_CASE("Vec3 Negate", "[DatMaths, Vec3, Negate]") {
 
 }
 
-TEST_CASE("Vec4 Negate", "[DatMaths, Vec4, Negate]") {
+TEST_CASE("Vec4 Negate", "[DatMaths, Vector, Vec4, Negate]") {
     DatMaths::vec4 lh{5, -6, 7, -8};
 
     DatMaths::vec4 newVec = -lh;
@@ -1097,7 +1097,7 @@ TEST_CASE("Vec4 Negate", "[DatMaths, Vec4, Negate]") {
     REQUIRE(newVec.w == 8);
 }
 
-TEST_CASE("Vecn Negate", "[DatMaths, Vecn, Negate]") {
+TEST_CASE("Vecn Negate", "[DatMaths, Vector, Vecn, Negate]") {
     DatMaths::vecn<7> lh{5.f, -6.f, 7.f, -8.f, 9.f, -10.f, 11.f};
 
     DatMaths::vecn<7> newVec = -lh;
@@ -1114,7 +1114,7 @@ TEST_CASE("Vecn Negate", "[DatMaths, Vecn, Negate]") {
 /*  Multiplication                              */
 /* -------------------------------------------- */
 
-TEST_CASE("Vec1 Multiply", "[DatMaths, Vec1, Multiply]") {
+TEST_CASE("Vec1 Multiply", "[DatMaths, Vector, Vec1, Multiply]") {
     SECTION("Multiply Vector") {
         DatMaths::vec1 lh{5};
         DatMaths::vec1 rh{2};
@@ -1146,7 +1146,7 @@ TEST_CASE("Vec1 Multiply", "[DatMaths, Vec1, Multiply]") {
     }
 }
 
-TEST_CASE("Vec2 Multiply", "[DatMaths, Vec2, Multiply]") {
+TEST_CASE("Vec2 Multiply", "[DatMaths, Vector, Vec2, Multiply]") {
     SECTION("Multiply Vector") {
         DatMaths::vec2 lh{5, 6};
         DatMaths::vec2 rh{2, 3};
@@ -1182,7 +1182,7 @@ TEST_CASE("Vec2 Multiply", "[DatMaths, Vec2, Multiply]") {
     }
 }
 
-TEST_CASE("Vec3 Multiply", "[DatMaths, Vec3, Multiply]") {
+TEST_CASE("Vec3 Multiply", "[DatMaths, Vector, Vec3, Multiply]") {
     SECTION("Multiply Vector") {
         DatMaths::vec3 lh{5, 6, 7};
         DatMaths::vec3 rh{2, 3, 4};
@@ -1222,7 +1222,7 @@ TEST_CASE("Vec3 Multiply", "[DatMaths, Vec3, Multiply]") {
     }
 }
 
-TEST_CASE("Vec4 Multiply", "[DatMaths, Vec4, Multiply]") {
+TEST_CASE("Vec4 Multiply", "[DatMaths, Vector, Vec4, Multiply]") {
     SECTION("Multiply Vector") {
         DatMaths::vec4 lh{5, 6, 7, 8};
         DatMaths::vec4 rh{2, 3, 4, 5};
@@ -1266,7 +1266,7 @@ TEST_CASE("Vec4 Multiply", "[DatMaths, Vec4, Multiply]") {
     }
 }
 
-TEST_CASE("Vecn Multiply", "[DatMaths, Vecn, Multiply]") {
+TEST_CASE("Vecn Multiply", "[DatMaths, Vector, Vecn, Multiply]") {
     SECTION("Multiply Vector") {
         DatMaths::vecn<7> lh{5.f, 6.f, 7.f, 8.f, 9.f, 10.f, 11.f};
         DatMaths::vecn<7> rh{2.f, 3.f, 4.f, 5.f, 6.f, 7.f, 8.f};
@@ -1326,7 +1326,7 @@ TEST_CASE("Vecn Multiply", "[DatMaths, Vecn, Multiply]") {
 /*  Division                                    */
 /* -------------------------------------------- */
 
-TEST_CASE("Vec1 Divide", "[DatMaths, Vec1, Divide]") {
+TEST_CASE("Vec1 Divide", "[DatMaths, Vector, Vec1, Divide]") {
     SECTION("Divide Vector") {
         DatMaths::vec1 lh{4};
         DatMaths::vec1 rh{2};
@@ -1358,7 +1358,7 @@ TEST_CASE("Vec1 Divide", "[DatMaths, Vec1, Divide]") {
     }
 }
 
-TEST_CASE("Vec2 Divide", "[DatMaths, Vec2, Divide]") {
+TEST_CASE("Vec2 Divide", "[DatMaths, Vector, Vec2, Divide]") {
     SECTION("Divide Vector") {
         DatMaths::vec2 lh{4, 30};
         DatMaths::vec2 rh{2, 5};
@@ -1394,7 +1394,7 @@ TEST_CASE("Vec2 Divide", "[DatMaths, Vec2, Divide]") {
     }
 }
 
-TEST_CASE("Vec3 Divide", "[DatMaths, Vec3, Divide]") {
+TEST_CASE("Vec3 Divide", "[DatMaths, Vector, Vec3, Divide]") {
     SECTION("Divide Vector") {
         DatMaths::vec3 lh{10, 18, 28};
         DatMaths::vec3 rh{2, 3, 4};
@@ -1434,7 +1434,7 @@ TEST_CASE("Vec3 Divide", "[DatMaths, Vec3, Divide]") {
     }
 }
 
-TEST_CASE("Vec4 Divide", "[DatMaths, Vec4, Divide]") {
+TEST_CASE("Vec4 Divide", "[DatMaths, Vector, Vec4, Divide]") {
     SECTION("Divide Vector") {
         DatMaths::vec4 lh{10, 18, 28, 40};
         DatMaths::vec4 rh{2, 3, 4, 5};
@@ -1478,7 +1478,7 @@ TEST_CASE("Vec4 Divide", "[DatMaths, Vec4, Divide]") {
     }
 }
 
-TEST_CASE("Vecn Divide", "[DatMaths, Vecn, Divide]") {
+TEST_CASE("Vecn Divide", "[DatMaths, Vector, Vecn, Divide]") {
     SECTION("Divide Vector") {
         DatMaths::vecn<7> lh{10.f, 18.f, 28.f, 40.f, 54.f, 70.f, 88.f};
         DatMaths::vecn<7> rh{2.f, 3.f, 4.f, 5.f, 6.f, 7.f, 8.f};
@@ -1538,7 +1538,7 @@ TEST_CASE("Vecn Divide", "[DatMaths, Vecn, Divide]") {
 /*  Dot Product                                 */
 /* -------------------------------------------- */
 
-TEST_CASE("Vec1 Dot Product", "[DatMaths, Vec1, Dot Product]") {
+TEST_CASE("Vec1 Dot Product", "[DatMaths, Vector, Vec1, Dot Product]") {
     SECTION("Basic") {
         DatMaths::vec1 lh(1);
         DatMaths::vec1 rh(3);
@@ -1564,7 +1564,7 @@ TEST_CASE("Vec1 Dot Product", "[DatMaths, Vec1, Dot Product]") {
     }
 }
 
-TEST_CASE("Vec2 Dot Product", "[DatMaths, Vec2, Dot Product]") {
+TEST_CASE("Vec2 Dot Product", "[DatMaths, Vector, Vec2, Dot Product]") {
     SECTION("Basic") {
         DatMaths::vec2 lh(1, 2);
         DatMaths::vec2 rh(3, 4);
@@ -1602,7 +1602,7 @@ TEST_CASE("Vec2 Dot Product", "[DatMaths, Vec2, Dot Product]") {
     }
 }
 
-TEST_CASE("Vec3 Dot Product", "[DatMaths, Vec3, Dot Product]") {
+TEST_CASE("Vec3 Dot Product", "[DatMaths, Vector, Vec3, Dot Product]") {
     SECTION("Basic") {
         DatMaths::vec3 lh(1, 2, 3);
         DatMaths::vec3 rh(4, 5, 6);
@@ -1640,7 +1640,7 @@ TEST_CASE("Vec3 Dot Product", "[DatMaths, Vec3, Dot Product]") {
     }
 }
 
-TEST_CASE("Vec4 Dot Product", "[DatMaths, Vec4, Dot Product]") {
+TEST_CASE("Vec4 Dot Product", "[DatMaths, Vector, Vec4, Dot Product]") {
     SECTION("Basic") {
         DatMaths::vec4 lh(1, 2, 3, 4);
         DatMaths::vec4 rh(5, 6, 7, 8);
@@ -1678,7 +1678,7 @@ TEST_CASE("Vec4 Dot Product", "[DatMaths, Vec4, Dot Product]") {
     }
 }
 
-TEST_CASE("Vecn Dot Product", "[DatMaths, Vecn, Dot Product]") {
+TEST_CASE("Vecn Dot Product", "[DatMaths, Vector, Vecn, Dot Product]") {
     SECTION("Basic") {
         DatMaths::vecn<7> lh(1.f, 2.f, 3.f, 4.f, 5.f, 6.f, 7.f);
         DatMaths::vecn<7> rh(8.f, 9.f, 10.f, 11.f, 12.f, 13.f, 14.f);
@@ -1720,7 +1720,7 @@ TEST_CASE("Vecn Dot Product", "[DatMaths, Vecn, Dot Product]") {
 /*  Cross Product                               */
 /* -------------------------------------------- */
 
-TEST_CASE("Vec3 Cross Product", "[DatMaths, Vec3, Cross Product]") {
+TEST_CASE("Vec3 Cross Product", "[DatMaths, Vector, Vec3, Cross Product]") {
     SECTION("Basic") {
         DatMaths::vec3 lh(1, 0, 0);
         DatMaths::vec3 rh(0, 1, 0);
