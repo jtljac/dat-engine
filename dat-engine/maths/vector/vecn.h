@@ -12,6 +12,7 @@
 
 #include <maths/numbers.h>
 #include <maths/common-maths.h>
+#include <cstring>
 
 namespace DatMaths {
     /**
@@ -24,7 +25,7 @@ namespace DatMaths {
     struct Vector<size, componentType> {
         typedef Vector<size, componentType> vecType;
 
-        std::vector<componentType> components;
+        componentType components[size];
 
         /* -------------------------------------------- */
         /*  Initialisation                              */
@@ -40,17 +41,15 @@ namespace DatMaths {
          * @param scalar The value to initialise the components to
          */
         explicit Vector(componentType scalar) : components(size) {
-            for (auto& component: components) {
-                component = scalar;
-            }
+            std::fill_n(components, size, scalar);
         }
 
         /**
          * Initialises each component using values from a list
          * @param components The list to get the components from
          */
-        Vector(const std::initializer_list<componentType>& components) : components(components) {
-            assert(components.size() == size);
+        Vector(const std::array<componentType, size>& components) {
+            std::memcpy(this->components, components.data(), sizeof(componentType) * size);
         };
 
         /**
@@ -59,7 +58,7 @@ namespace DatMaths {
          */
         Vector(const convertsTo<componentType> auto&... args)
         requires (sizeof...(args) == size)
-        : components({args...}) {}
+        : components(args...) {}
 
         /* -------------------------------------------- */
 
@@ -96,12 +95,12 @@ namespace DatMaths {
 
         const componentType& operator[](const size_t pos) const {
             assert(pos < size);
-            return components.at(pos);
+            return components[pos];
         }
 
         componentType& operator[](const size_t pos) {
             assert(pos < size);
-            return components.at(pos);
+            return components[pos];
         }
 
         /* -------------------------------------------- */

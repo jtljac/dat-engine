@@ -434,7 +434,7 @@ TEST_CASE("Vecn Initialisation", "[DatMaths, Vector, Vecn, Initialisation]") {
     }
 
     SECTION("Component list") {
-        DatMaths::vecn<7> vec({1.f, 2.f, 3.f, 4.f, 5.f, 6.f, 7.f});
+        DatMaths::vecn<7> vec(std::array<float, 7>({1.f, 2.f, 3.f, 4.f, 5.f, 6.f, 7.f}));
         REQUIRE(vec[0] == 1);
         REQUIRE(vec[1] == 2);
         REQUIRE(vec[2] == 3);
