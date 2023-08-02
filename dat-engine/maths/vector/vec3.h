@@ -34,27 +34,27 @@ namespace DatMaths {
         const static vecType NORTH;
 
         /**
-         * A unit vector that faces east
+         * A unit vector that faces east (1, 0, 0)
          */
         const static vecType EAST;
 
         /**
-         * A unit vector that faces south
+         * A unit vector that faces south (0, 0, -1)
          */
         const static vecType SOUTH;
 
         /**
-         * A unit vector that faces west
+         * A unit vector that faces west (-1, 0, 0)
          */
         const static vecType WEST;
 
         /**
-         * A unit vector that faces up
+         * A unit vector that faces up (0, 1, 0)
          */
         const static vecType UP;
 
         /**
-         * A unit vector that faces down
+         * A unit vector that faces down (0, -1, 0)
          */
         const static vecType DOWN;
 

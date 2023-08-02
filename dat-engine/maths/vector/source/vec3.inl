@@ -15,10 +15,10 @@ template<typename componentType>
 const Vector<3, componentType> Vector<3, componentType>::WEST = {-1, 0, 0};
 
 template<typename componentType>
-const Vector<3, componentType> Vector<3, componentType>::UP = {0, -1, 0};
+const Vector<3, componentType> Vector<3, componentType>::UP = {0, 1, 0};
 
 template<typename componentType>
-const Vector<3, componentType> Vector<3, componentType>::DOWN = {0, 1, 0};
+const Vector<3, componentType> Vector<3, componentType>::DOWN = {0, -1, 0};
 
 /* -------------------------------------------- */
 /*  Initialisation                              */
