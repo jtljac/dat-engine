@@ -50,7 +50,7 @@ namespace DatMaths {
          * @param args The columns of the Matrix
          */
         Matrix(const convertsTo<columnType> auto&... args)
-        requires (sizeof...(args) == width) : cells(args...) {};
+        requires (sizeof...(args) == width && width * height > 1) : cells(args...) {};
 
         /**
          * Initialise each column using an array of columns
@@ -65,7 +65,7 @@ namespace DatMaths {
          * @param args The cells of the Matrix
          */
         Matrix(const convertsTo<componentType> auto&... args)
-        requires (sizeof...(args) == width * height) {
+        requires (sizeof...(args) == width * height && width * height > 1) {
             std::array<componentType, width * height> elements = std::array<componentType, width * height>({{args...}});
 
             for (int i = 0; i < width; ++i) {
@@ -179,7 +179,6 @@ namespace DatMaths {
         }
 
         // Assignment
-
         // Getter
         inline columnType& operator[](const size_t pos) {
             return getColumn(pos);
@@ -227,7 +226,7 @@ namespace DatMaths {
             assert(pos < height);
             rowType row;
             for (int i = 0; i < width; ++i) {
-                row[i] = cells[pos][i];
+                row[i] = cells[i][pos];
             }
 
             return row;

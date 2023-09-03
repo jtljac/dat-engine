@@ -23,6 +23,9 @@ concept numeric = integral<T> || floating_point<T>;
 template <typename T, typename base>
 concept subClass = std::is_base_of_v<base, T>;
 
+template <typename T, typename sub>
+concept baseClass = std::is_base_of_v<T, sub>;
+
 template <typename T, typename exactType>
 concept exactClass = std::same_as<T, exactType>;
 
