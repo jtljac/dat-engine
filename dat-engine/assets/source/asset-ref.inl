@@ -21,12 +21,12 @@ AssetRef<assetType> AssetRef<assetType>::createAssetRef(assetType* asset) {
 }
 
 template<subClass<Asset> assetType>
-Asset AssetRef<assetType>::operator*() {
+assetType AssetRef<assetType>::operator*() {
     return *asset;
 }
 
 template<subClass<Asset> assetType>
-Asset* AssetRef<assetType>::operator->() {
+assetType* AssetRef<assetType>::operator->() {
     return asset;
 }
 

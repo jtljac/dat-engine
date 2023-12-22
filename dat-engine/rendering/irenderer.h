@@ -9,16 +9,13 @@
 #include <vector>
 #include <string>
 
+template<subClass<IWindow> windowType>
 class IRenderer {
 protected:
-    std::vector<IWindow*> windows;
+    std::vector<windowType> windows;
 
     virtual bool initialise() = 0;
     virtual void cleanup() {
-        for (const auto& window: windows) {
-            delete window;
-        }
-
         windows.clear();
     };
 

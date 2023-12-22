@@ -12,7 +12,7 @@
 #ifdef min
 #undef min
 #endif
-// TODO: Test min and max
+// TODO: Test
 namespace DatMaths {
     // If these aren't commented then it's because there's nothing to add with a comment
     /* -------------------------------------------- */

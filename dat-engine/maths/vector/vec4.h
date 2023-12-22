@@ -10,14 +10,15 @@
 
 #include <maths/numbers.h>
 #include <maths/common-maths.h>
+#include <util/empty-init.h>
 
 namespace DatMaths {
-    template<typename componentType>
     /**
      * A struct representing a 4 component vector
      * @tparam componentType The type of the components of the vector
      */
-    struct Vector<4, componentType> {
+    template<typename componentType>
+    struct alignas(16) Vector<4, componentType> {
         typedef Vector<4, componentType> vecType;
 
         /** The components of the vector */
@@ -26,6 +27,13 @@ namespace DatMaths {
         /* -------------------------------------------- */
         /*  Initialisation                              */
         /* -------------------------------------------- */
+
+        /**
+         * Skip initialising
+         * <br>
+         * All components will have unspecified values
+         */
+        explicit Vector(EmptyInit) {}
 
         /**
          * Initialises all components to 0

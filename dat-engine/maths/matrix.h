@@ -4,8 +4,7 @@
 
 #pragma once
 
-#include <maths/vector.h>
-#include "matrix/mat.h"
+#include "matrix/mat4.h"
 
 namespace DatMaths {
     /** A floating point 3x3 Matrix */

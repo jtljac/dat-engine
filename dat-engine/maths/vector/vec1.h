@@ -12,11 +12,12 @@
 #include <util/type-traits.h>
 #include <maths/numbers.h>
 #include <maths/common-maths.h>
+#include <util/empty-init.h>
 
 namespace DatMaths {
     template<typename componentType>
     /**
-     * A struct representing a 2 component vector
+     * A struct representing a 1 component vector
      * @tparam componentType The type of the components of the vector
      */
     struct Vector<1, componentType> {
@@ -28,6 +29,13 @@ namespace DatMaths {
         /* -------------------------------------------- */
         /*  Initialisation                              */
         /* -------------------------------------------- */
+
+        /**
+         * Skip initialising
+         * <br>
+         * All components will have unspecified values
+         */
+        explicit Vector(EmptyInit) {}
 
         /**
          * Initialises all components to 0

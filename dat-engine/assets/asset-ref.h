@@ -16,9 +16,9 @@ class AssetRef {
     /** The number of asset references to this asset */
     unsigned int* const refCount;
 
-    AssetRef(Asset* asset) : asset(asset),
+    AssetRef(assetType* asset) : asset(asset),
                              refCount(new unsigned int(0)) {}
-    AssetRef(Asset* asset, unsigned int refCount) : asset(asset),
+    AssetRef(assetType* asset, unsigned int refCount) : asset(asset),
                                                     refCount(new unsigned int(refCount)) {}
 public:
     /**
@@ -43,9 +43,9 @@ public:
 
     ~AssetRef();
 
-    Asset operator*();
+    assetType operator*();
 
-    Asset* operator->();
+    assetType* operator->();
 
     /**
      * Get the number of references to this asset currently in memory

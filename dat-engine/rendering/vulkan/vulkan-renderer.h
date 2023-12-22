@@ -6,14 +6,17 @@
 
 
 #include "rendering/irenderer.h"
+#include "vk-window.h"
 
 #define VULKAN_HPP_NO_EXCEPTIONS
 #include <vulkan/vulkan.hpp>
 #include <vk_mem_alloc.h>
 
 
-
-class VulkanRenderer : public IRenderer {
+/**
+ * A renderer implementation for the Vulkan Graphics API
+ */
+class VulkanRenderer : public IRenderer<VkWindow> {
 protected:
     // Vulkan Instance
     vk::Instance instance;

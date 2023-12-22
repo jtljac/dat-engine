@@ -4,21 +4,29 @@
 #include <SDL.h>
 #include <iostream>
 
-enum class EngineRunningState {
-
-};
-
 class DatEngine {
+    static DatEngine* INSTANCE;
+
     // Renderer
     // Asset Manager
+    // Registry
     // Input Manager
     // Audio Engine
     // UI
 
-    bool shouldClose;
+    bool shouldClose = false;
 
 public:
-    void init() {
+    DatEngine() = default;
+
+public:
+    static DatEngine* getInstance() {
+
+        return INSTANCE;
+    }
+
+    static void init() {
+        INSTANCE = new DatEngine();
         SDL_Init(SDL_INIT_EVERYTHING);
     }
 

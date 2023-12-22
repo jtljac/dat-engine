@@ -7,5 +7,6 @@
 #include "quaternion/quat.h"
 
 namespace DatMaths {
-
+    using quat = Quaternion<float>;
+    using dquat = Quaternion<double>;
 }

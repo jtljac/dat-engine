@@ -11,6 +11,7 @@
 #include <util/type-traits.h>
 #include <maths/numbers.h>
 #include <maths/common-maths.h>
+#include <util/empty-init.h>
 
 namespace DatMaths {
     template<typename componentType>
@@ -61,6 +62,13 @@ namespace DatMaths {
         /* -------------------------------------------- */
         /*  Initialisation                              */
         /* -------------------------------------------- */
+
+        /**
+         * Skip initialising
+         * <br>
+         * All components will have unspecified values
+         */
+        explicit Vector(EmptyInit) {}
 
         /**
          * Initialises all components to 0

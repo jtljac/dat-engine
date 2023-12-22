@@ -232,8 +232,21 @@ namespace DatMaths {
             return row;
         }
 
-        // Maths
-        //   Add
+        /* -------------------------------------------- */
+        /*  Maths                                       */
+        /* -------------------------------------------- */
+
+        // Add
+        template<typename otherType>
+        matType operator+(const Matrix<width, height, otherType> otherMat) {
+            matType newMatrix;
+            // Trust the compiler to unroll
+            for (int i = 0; i < width; ++i) {
+                newMatrix[i] = this[i] + otherMat[i];
+            }
+
+            return newMatrix;
+        }
         //   Minus
         //   Multiply
         //   Divide
@@ -247,5 +260,7 @@ namespace DatMaths {
         //   And
         //   or
         //   xor
+
+#include "mat4x4.inl"
     };
 }

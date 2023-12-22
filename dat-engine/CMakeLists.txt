@@ -4,6 +4,7 @@ add_subdirectory(util)
 add_subdirectory(maths)
 add_subdirectory(platform)
 add_subdirectory(rendering)
+add_subdirectory(assets)
 
 target_include_directories(dat-engine PUBLIC ./)
 

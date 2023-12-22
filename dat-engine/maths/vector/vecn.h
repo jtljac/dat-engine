@@ -9,10 +9,11 @@
 #include <vector>
 #include <cassert>
 #include <compare>
+#include <cstring>
 
 #include <maths/numbers.h>
 #include <maths/common-maths.h>
-#include <cstring>
+#include <util/empty-init.h>
 
 namespace DatMaths {
     /**
@@ -30,6 +31,13 @@ namespace DatMaths {
         /* -------------------------------------------- */
         /*  Initialisation                              */
         /* -------------------------------------------- */
+
+        /**
+         * Skip initialising
+         * <br>
+         * All components will have unspecified values
+         */
+        explicit Vector(EmptyInit) {}
 
         /**
          * Initialises all components to 0
