@@ -2,7 +2,8 @@
 // Created by jacob on 29/06/23.
 //
 
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/catch_approx.hpp>
 
 #include <maths/vector.h>
 
@@ -1712,7 +1713,7 @@ TEST_CASE("Vecn Dot Product", "[DatMaths, Vector, Vecn, Dot Product]") {
     SECTION("Large Difference") {
         DatMaths::vecn<7> lh(1000.f, 2000.f, 3000.f, 4000.f, 5000.f, 6000.f, 7000.f);
         DatMaths::vecn<7> rh(0.5f, 0.25f, 0.1f, 0.05f, 0.01f, 0.001f, 0.0001f);
-        REQUIRE(lh.dotProduct(rh) == Approx(1556.7));
+        REQUIRE(lh.dotProduct(rh) == Catch::Approx(1556.7));
     }
 }
 
