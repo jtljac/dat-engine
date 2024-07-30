@@ -9,6 +9,7 @@
 #include <util/string-utils.h>
 
 #include "macros.h"
+#include "type-traits.h"
 namespace DatEngine {
     struct CVarParameter;
 
@@ -257,5 +258,28 @@ namespace DatEngine {
         std::string* getPtr() override;
         void set(std::string value) override;
         std::string reset() override;
+    };
+
+    template <integralEnumType T>
+    struct CVarEnum : CVarInt {
+        CVarEnum(const char* name, const char* description, T defaultValue, const CVarFlags flags = CVarFlags::None) :
+            CVarInt(name, description, static_cast<int32_t>(defaultValue), flags) {}
+        CVarEnum(const char* name, const char* description, T value, T defaultValue, const CVarFlags flags = CVarFlags::None) :
+            CVarInt(name, description, static_cast<int32_t>(value), static_cast<int32_t>(defaultValue), flags) {}
+
+        T getEnum() {
+            return static_cast<T>(CVarInt::get());
+        }
+        T getDefaultEnum() {
+            return static_cast<T>(CVarInt::getDefault());
+        }
+
+        void set(T value) {
+            CVarInt::set(static_cast<int32_t>(value));
+        }
+
+        T resetEnum() {
+            return static_cast<T>(CVarInt::reset());
+        }
     };
 }

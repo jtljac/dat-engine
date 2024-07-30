@@ -43,6 +43,13 @@ namespace DatEngine {
     template <typename T>
     concept numeric = integral<T> || floating_point<T>;
 
+    template <typename T>
+    concept enumType = std::is_enum_v<T>;
+
+    template <typename T>
+    concept integralEnumType = enumType<T> && numeric<std::underlying_type_t<T>>;
+
+
     /**
      * Concept for testing if a class is a subclass of another
      * @tparam T The class to test

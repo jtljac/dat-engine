@@ -140,7 +140,7 @@ struct CVarArray {
      * @return The new value of the CVar
      */
     T reset(const uint32_t index) {
-        CVarStorage<T> storage = getStorage(index);
+        CVarStorage<T>& storage = getStorage(index);
         return storage.current = storage.initial;
     }
 
