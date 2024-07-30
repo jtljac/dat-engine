@@ -19,6 +19,12 @@ add_library(dat-engine STATIC)
 set(DAT_ENGINE_TARGET_PLATFORM "linux" CACHE STRING "The target platform to build for")
 set_property(CACHE DAT_ENGINE_TARGET_PLATFORM PROPERTY STRINGS linux windows macos)
 
+# CVars
+
+set(DAT_ENGINE_MAX_INTEGER_CVARS 500 CACHE STRING "The maximum number of Integer CVars")
+set(DAT_ENGINE_MAX_FLOAT_CVARS 200 CACHE STRING "The maximum number of Float CVars")
+set(DAT_ENGINE_MAX_STRING_CVARS 200 CACHE STRING "The maximum number of String CVars")
+
 # Assets
 #set(projectAssetDir "" CACHE FILEPATH "The asset directory for the project")
 #set(assetDest "${CMAKE_BINARY_DIR}/Engine" CACHE FILEPATH "Destination Path of the asset directory in the compiled project")
