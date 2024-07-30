@@ -1,10 +1,13 @@
 //
 // Created by jacob on 10/07/23.
 //
-
 #include "util/logger.h"
 
 #include <spdlog/sinks/stdout_color_sinks.h>
+
+#include <maths/vector/vector-string.h>
+
+using namespace DatEngine;
 
 // Initialise to nullptr for our asserts
 std::shared_ptr<spdlog::logger> DatLog::core = nullptr;
@@ -18,25 +21,25 @@ void DatLog::init() {
     sinks[0]->set_pattern("%^[%T][%n][%l]: %v%$");
 
 
-    DatLog::core = std::make_shared<spdlog::logger>("Core", sinks.begin(), sinks.end());
-    spdlog::register_logger(DatLog::core);
-    DatLog::core->set_level(spdlog::level::trace);
-    DatLog::core->flush_on(spdlog::level::trace);
+    core = std::make_shared<spdlog::logger>("Core", sinks.begin(), sinks.end());
+    register_logger(core);
+    core->set_level(spdlog::level::trace);
+    core->flush_on(spdlog::level::trace);
 
-    DatLog::game = std::make_shared<spdlog::logger>("Game", sinks.begin(), sinks.end());
-    spdlog::register_logger(DatLog::game);
-    DatLog::game->set_level(spdlog::level::trace);
-    DatLog::game->flush_on(spdlog::level::trace);
+    game = std::make_shared<spdlog::logger>("Game", sinks.begin(), sinks.end());
+    register_logger(game);
+    game->set_level(spdlog::level::trace);
+    game->flush_on(spdlog::level::trace);
 
     CORE_INFO("Logger Initialised");
 }
 
 std::shared_ptr<spdlog::logger>& DatLog::getCoreLogger() {
     assert(DatLog::core != nullptr);
-    return DatLog::core;
+    return core;
 }
 
 std::shared_ptr<spdlog::logger>& DatLog::getGameLogger() {
     assert(DatLog::game != nullptr);
-    return DatLog::game;
+    return game;
 }

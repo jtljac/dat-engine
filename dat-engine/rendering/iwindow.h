@@ -6,15 +6,15 @@
 
 #include <maths/vector.h>
 
-#include <SDL.h>
+namespace DatEngine {
+    struct SDL_Window;
 
-struct SDL_Window;
+    class IWindow {
+    protected:
+        SDL_Window* window;
 
-class IWindow {
-protected:
-    SDL_Window* window;
+        DatMaths::uvec2 getDimensions() {
 
-    DatMaths::uvec2 getDimensions() {
-
-    }
-};
+        }
+    };
+}

@@ -7,7 +7,7 @@
 #include <maths/vector.h>
 #include "matrix/mat.h"
 
-namespace DatMaths {
+namespace DatEngine::DatMaths {
     /** A floating point 3x3 Matrix */
     using mat3 = Matrix<3, 3, float>;
 

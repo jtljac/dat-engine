@@ -6,8 +6,12 @@
 #include <iostream>
 
 #include <SDL.h>
-#include <util/logger.h>
 #include <rendering/vulkan/vulkan-renderer.h>
+#include <util/logger.h>
+
+#include "dat-engine.h"
+
+using namespace DatEngine;
 
 int main() {
     VulkanRenderer renderer;

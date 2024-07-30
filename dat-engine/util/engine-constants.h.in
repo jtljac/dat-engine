@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <string>
 
-namespace DatConst {
+namespace DatEngine::Constants {
     constexpr std::string ENGINE_NAME = "@DAT_ENGINE_TITLE@";
     constexpr std::string ENGINE_VERSION = "@DAT_ENGINE_VERSION@";
     constexpr std::string ENGINE_BUILD_DATE = "@DAT_ENGINE_BUILD_DATE@";
@@ -17,4 +17,3 @@ namespace DatConst {
         constexpr uint32_t MAX_STRING = @DAT_ENGINE_MAX_STRING_CVARS@;
     }
 }
-

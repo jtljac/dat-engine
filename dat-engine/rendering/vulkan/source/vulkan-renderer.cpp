@@ -12,6 +12,8 @@
 
 #include <util/logger.h>
 
+using namespace DatEngine;
+
 bool VulkanRenderer::initialise() {
     CORE_TRACE("Initialising Vulkan Renderer");
     if (!initialiseInstance()) return false;
@@ -104,7 +106,7 @@ bool VulkanRenderer::initialiseDevice() {
     auto test = physicalDevice.enumerateDeviceExtensionProperties(nullptr);
 
     for (const auto& item: test.value) {
-        CORE_INFO("{}", item.extensionName);
+        CORE_INFO("{}", item.extensionName.data());
     }
 
     vk::PhysicalDeviceFeatures deviceFeatures;

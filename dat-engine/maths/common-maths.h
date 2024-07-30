@@ -13,7 +13,7 @@
 #undef min
 #endif
 // TODO: Test min and max
-namespace DatMaths {
+namespace DatEngine::DatMaths {
     // If these aren't commented then it's because there's nothing to add with a comment
     /* -------------------------------------------- */
     /*  Square Root                                 */
@@ -22,8 +22,6 @@ namespace DatMaths {
     float sqrt(float value);
 
     float invSqrt(float value);
-
-
 
     /* -------------------------------------------- */
     /*  Trigonometry                                */

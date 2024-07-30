@@ -6,24 +6,22 @@
 
 #include "vec-forward.h"
 
-#include <vector>
 #include <cassert>
 #include <compare>
 
-#include <maths/numbers.h>
-#include <maths/common-maths.h>
 #include <cstring>
+#include <maths/common-maths.h>
+#include <maths/numbers.h>
 
-namespace DatMaths {
+namespace DatEngine {
     /**
      * A struct representing a N component vector
      * @tparam size The number of components in the vector
      * @tparam componentType The type of the components of the vector
      */
     template<int size, numeric componentType>
-    requires (size > 4)
-    struct Vector<size, componentType> {
-        typedef Vector<size, componentType> vecType;
+        requires(size > 4)
+    struct DatMaths::Vector<size, componentType> {
 
         componentType components[size];
 
@@ -40,9 +38,7 @@ namespace DatMaths {
          * Initialises all components to the same value
          * @param scalar The value to initialise the components to
          */
-        explicit Vector(componentType scalar) : components(size) {
-            std::fill_n(components, size, scalar);
-        }
+        explicit Vector(componentType scalar) : components(size) { std::fill_n(components, size, scalar); }
 
         /**
          * Initialises each component using values from a list
@@ -57,8 +53,8 @@ namespace DatMaths {
          * @param args The components of the vector
          */
         Vector(const convertsTo<componentType> auto&... args)
-        requires (sizeof...(args) == size)
-        : components(args...) {}
+            requires(sizeof...(args) == size)
+            : components(args...) {}
 
         /* -------------------------------------------- */
 
@@ -72,8 +68,10 @@ namespace DatMaths {
         template<int otherSize, typename otherType>
         Vector(const Vector<otherSize, otherType>& otherVec) : components(size) {
             for (int i = 0; i < size; ++i) {
-                if (i < otherSize) components[i] = otherVec[i];
-                else components[i] = 0;
+                if (i < otherSize)
+                    components[i] = otherVec[i];
+                else
+                    components[i] = 0;
             }
         }
 
@@ -81,7 +79,7 @@ namespace DatMaths {
 
         // Assignment operator
         template<typename otherType>
-        vecType& operator=(const Vector<size, otherType>& otherVec) {
+        Vector& operator=(const Vector<size, otherType>& otherVec) {
             for (int i = 0; i < size; ++i) {
                 components[i] = otherVec[i];
             }
@@ -109,8 +107,8 @@ namespace DatMaths {
 
         // Add Vector
         template<typename otherType>
-        vecType operator+(const Vector<size, otherType>& rhs) const {
-            vecType newVec;
+        Vector operator+(const Vector<size, otherType>& rhs) const {
+            Vector newVec;
             for (int i = 0; i < size; ++i) {
                 newVec[i] = (*this)[i] + rhs[i];
             }
@@ -120,8 +118,8 @@ namespace DatMaths {
 
         // Add Scalar
         template<typename otherType>
-        vecType operator+(otherType rhs) const {
-            vecType newVec;
+        Vector operator+(otherType rhs) const {
+            Vector newVec;
             for (int i = 0; i < size; ++i) {
                 newVec[i] = (*this)[i] + rhs;
             }
@@ -131,7 +129,7 @@ namespace DatMaths {
 
         // Add Vector In-Place
         template<typename otherType>
-        vecType& operator+=(const Vector<size, otherType>& rhs) {
+        Vector& operator+=(const Vector<size, otherType>& rhs) {
             for (int i = 0; i < size; ++i) {
                 (*this)[i] += rhs[i];
             }
@@ -141,7 +139,7 @@ namespace DatMaths {
 
         // Add Scalar In-Place
         template<typename otherType>
-        vecType& operator+=(otherType rhs) {
+        Vector& operator+=(otherType rhs) {
             for (int i = 0; i < size; ++i) {
                 (*this)[i] += rhs;
             }
@@ -153,8 +151,8 @@ namespace DatMaths {
 
         // Minus Vector
         template<typename otherType>
-        vecType operator-(const Vector<size, otherType>& rhs) const {
-            vecType newVec;
+        Vector operator-(const Vector<size, otherType>& rhs) const {
+            Vector newVec;
             for (int i = 0; i < size; ++i) {
                 newVec[i] = (*this)[i] - rhs[i];
             }
@@ -164,8 +162,8 @@ namespace DatMaths {
 
         // Minus Scalar
         template<typename otherType>
-        vecType operator-(otherType rhs) const {
-            vecType newVec;
+        Vector operator-(otherType rhs) const {
+            Vector newVec;
             for (int i = 0; i < size; ++i) {
                 newVec[i] = (*this)[i] - rhs;
             }
@@ -175,7 +173,7 @@ namespace DatMaths {
 
         // Minus Vector In-Place
         template<typename otherType>
-        vecType& operator-=(const Vector<size, otherType>& rhs) {
+        Vector& operator-=(const Vector<size, otherType>& rhs) {
             for (int i = 0; i < size; ++i) {
                 (*this)[i] -= rhs[i];
             }
@@ -185,7 +183,7 @@ namespace DatMaths {
 
         // Minus Scalar In-Place
         template<typename otherType>
-        vecType& operator-=(otherType rhs) {
+        Vector& operator-=(otherType rhs) {
             for (int i = 0; i < size; ++i) {
                 (*this)[i] -= rhs;
             }
@@ -196,7 +194,7 @@ namespace DatMaths {
         /* -------------------------------------------- */
 
         //   Negation
-        vecType operator-() {
+        Vector operator-() {
             for (int i = 0; i < size; ++i) {
                 (*this)[i] = -(*this)[i];
             }
@@ -208,8 +206,8 @@ namespace DatMaths {
 
         // Multiply by Components
         template<typename otherType>
-        vecType operator*(const Vector<size, otherType>& rhs) const {
-            vecType newVec;
+        Vector operator*(const Vector<size, otherType>& rhs) const {
+            Vector newVec;
             for (int i = 0; i < size; ++i) {
                 newVec[i] = (*this)[i] * rhs[i];
             }
@@ -219,8 +217,8 @@ namespace DatMaths {
 
         // Multiply by Scalar
         template<typename otherType>
-        vecType operator*(otherType rhs) const {
-            vecType newVec;
+        Vector operator*(otherType rhs) const {
+            Vector newVec;
             for (int i = 0; i < size; ++i) {
                 newVec[i] = (*this)[i] * rhs;
             }
@@ -230,7 +228,7 @@ namespace DatMaths {
 
         // Multiply by Components In-Place
         template<typename otherType>
-        vecType& operator*=(const Vector<size, otherType>& rhs) {
+        Vector& operator*=(const Vector<size, otherType>& rhs) {
             for (int i = 0; i < size; ++i) {
                 (*this)[i] *= rhs[i];
             }
@@ -240,7 +238,7 @@ namespace DatMaths {
 
         // Multiply by Scalar In-Place
         template<typename otherType>
-        vecType& operator*=(otherType rhs) {
+        Vector& operator*=(otherType rhs) {
             for (int i = 0; i < size; ++i) {
                 (*this)[i] *= rhs;
             }
@@ -252,8 +250,8 @@ namespace DatMaths {
 
         // Divide by Components
         template<typename otherType>
-        vecType operator/(const Vector<size, otherType>& rhs) const {
-            vecType newVec;
+        Vector operator/(const Vector<size, otherType>& rhs) const {
+            Vector newVec;
             for (int i = 0; i < size; ++i) {
                 newVec[i] = (*this)[i] / rhs[i];
             }
@@ -263,8 +261,8 @@ namespace DatMaths {
 
         // Divide by Scalar
         template<typename otherType>
-        vecType operator/(otherType rhs) const {
-            vecType newVec;
+        Vector operator/(otherType rhs) const {
+            Vector newVec;
             for (int i = 0; i < size; ++i) {
                 newVec[i] = (*this)[i] / rhs;
             }
@@ -274,7 +272,7 @@ namespace DatMaths {
 
         // Divide by Components In-Place
         template<typename otherType>
-        vecType& operator/=(const Vector<size, otherType>& rhs) {
+        Vector& operator/=(const Vector<size, otherType>& rhs) {
             for (int i = 0; i < size; ++i) {
                 (*this)[i] /= rhs[i];
             }
@@ -284,7 +282,7 @@ namespace DatMaths {
 
         // Divide by Scalar In-Place
         template<typename otherType>
-        vecType& operator/=(otherType rhs) {
+        Vector& operator/=(otherType rhs) {
             for (int i = 0; i < size; ++i) {
                 (*this)[i] /= rhs;
             }
@@ -317,9 +315,7 @@ namespace DatMaths {
          * Get the magnitude of the vector
          * @return the magnitude of the vector
          */
-        componentType length() const {
-            return DatMaths::sqrt(lengthSquared());
-        }
+        componentType length() const { return DatMaths::sqrt(lengthSquared()); }
 
         /**
          * Get the magnitude squared of the vector
@@ -353,13 +349,15 @@ namespace DatMaths {
          * Get the normalised copy of this vector
          * @return a normalised copy of this vector
          */
-        vecType normalised() const {
-            vecType newVec;
+        Vector normalised() const {
+            Vector newVec;
 
             componentType invLength = DatMaths::invSqrt(lengthSquared());
             for (int i = 0; i < size; ++i) {
                 newVec[i] = (*this)[i] * invLength;
             }
+
+            return newVec;
         }
 
         /**
@@ -378,7 +376,8 @@ namespace DatMaths {
         template<typename otherType>
         bool operator==(const Vector<size, otherType>& rhs) const {
             for (int i = 0; i < size; ++i) {
-                if ((*this)[i] != rhs[i]) return false;
+                if ((*this)[i] != rhs[i])
+                    return false;
             }
 
             return true;
@@ -392,9 +391,11 @@ namespace DatMaths {
          * @return true if equal within a tolerance
          */
         template<typename otherType>
-        bool equal(const Vector<size, otherType>& rhs, componentType tolerance = static_cast<componentType>(numbers::tinyNumber)) const {
+        bool equal(const Vector<size, otherType>& rhs,
+                   componentType tolerance = static_cast<componentType>(numbers::tinyNumber)) const {
             for (int i = 0; i < size; ++i) {
-                if (std::abs((*this)[i] - static_cast<componentType>(rhs[i])) >= tolerance) return false;
+                if (std::abs((*this)[i] - static_cast<componentType>(rhs[i])) >= tolerance)
+                    return false;
             }
 
             return true;

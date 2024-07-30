@@ -11,43 +11,43 @@
 #include <vulkan/vulkan.hpp>
 #include <vk_mem_alloc.h>
 
+namespace DatEngine {
+    class VulkanRenderer : public IRenderer {
+    protected:
+        // Vulkan Instance
+        vk::Instance instance;
+        vk::PhysicalDevice physicalDevice;
+        vk::Device device;
 
+        // Memory Management
+        VmaAllocator allocator = VK_NULL_HANDLE;
 
-class VulkanRenderer : public IRenderer {
-protected:
-    // Vulkan Instance
-    vk::Instance instance;
-    vk::PhysicalDevice physicalDevice;
-    vk::Device device;
+        /**
+         * Setup the Vulkan Instance
+         * @return true if successful
+         */
+        bool initialiseInstance();
 
-    // Memory Management
-    VmaAllocator allocator = VK_NULL_HANDLE;
+        /**
+         * Select a physical device for vulkan to use
+         * @return true if successful
+         */
+        bool initialisePhysicalDevice();
 
-    /**
-     * Setup the Vulkan Instance
-     * @return true if successful
-     */
-    bool initialiseInstance();
+        /**
+         * Create a logical device
+         * @return true if successful
+         */
+        bool initialiseDevice();
 
-    /**
-     * Select a physical device for vulkan to use
-     * @return true if successful
-     */
-    bool initialisePhysicalDevice();
+        /**
+         * Setup Vulkan Memory Manager
+         * @return true if successful
+         */
+        bool initialiseVma();
+    public:
+        bool initialise() override;
 
-    /**
-     * Create a logical device
-     * @return true if successful
-     */
-    bool initialiseDevice();
-
-    /**
-     * Setup Vulkan Memory Manager
-     * @return true if successful
-     */
-    bool initialiseVma();
-public:
-    bool initialise() override;
-
-    void cleanup() override;
-};
+        void cleanup() override;
+    };
+}

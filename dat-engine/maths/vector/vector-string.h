@@ -12,7 +12,7 @@
 #include "vec4.h"
 #include "vecn.h"
 
-namespace DatMaths {
+namespace DatEngine::DatMaths {
     template <typename componentType>
     std::string to_string(const Vector<2, componentType>& vec) {
         return "{" + std::to_string(vec.x) + ", " + std::to_string(vec.y) + "}";
@@ -46,6 +46,6 @@ namespace DatMaths {
 }
 
 template <typename ostream, int vecSize, typename vecType>
-ostream& operator<<(ostream& stream, DatMaths::Vector<vecSize, vecType> vec) {
-    return stream << DatMaths::to_string<vecSize, vecType>(vec);
+ostream& operator<<(ostream& stream, DatEngine::DatMaths::Vector<vecSize, vecType> vec) {
+    return stream << DatEngine::DatMaths::to_string<vecSize, vecType>(vec);
 }

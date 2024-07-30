@@ -5,7 +5,7 @@
 
 #include <maths/matrix.h>
 
-using namespace DatMaths;
+using namespace DatEngine::DatMaths;
 
 TEST_CASE("Mat3 initialisation", "[DatMaths, Matrix, Mat3, Initialisation]") {
     SECTION("Zero") {

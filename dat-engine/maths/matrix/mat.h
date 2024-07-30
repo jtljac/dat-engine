@@ -6,11 +6,10 @@
 
 #include <maths/vector/vec-forward.h>
 #include <algorithm>
-#include <tuple>
 #include <cassert>
 #include <cstring>
 
-namespace DatMaths {
+namespace DatEngine::DatMaths {
     /**
      * A type representing a matrix of variable height and width
      * <br>
@@ -78,10 +77,10 @@ namespace DatMaths {
 
         /**
          * Initialise cell with a list of cells
-         * <br>
+         *
          * This will copy the data from the given list in column major order, therefore the data will move from the given
          * array to the matrix in the following way (for a 3x3 matrix:
-         * <br>
+         *
          * 0, 3, 6 <br>
          * 1, 4, 7 <br>
          * 2, 5, 8
@@ -95,7 +94,7 @@ namespace DatMaths {
 
         /**
          * Initialise using values from another Matrix
-         * <br>
+         *
          * If this Matrix is wider or taller than other Matrix then the extra cells will be initialised to zero
          * @tparam otherWidth The width of the other Matrix
          * @tparam otherHeight The height of the other Matrix
@@ -114,68 +113,42 @@ namespace DatMaths {
         /* -------------------------------------------- */
         /*  Identity                                    */
         /* -------------------------------------------- */
-        /*
-         * These have been done individually for the main identities (mat1, mat2, mat3, mat4) as to ensure that they are
-         * optimal. The fallback system, used for mat>4, is much slower due to assignments.
-         */
 
         /**
-         * Get a 1x1 identity matrix
+         * Get an identity matrix
+         *
+         * @note To ensure this is optimal, there are separate implementations for specific matrix sizes (mat1, mat2,
+         *       mat3, mat4) using `if constexpr`. For all other matrix sizes a much slower general approach is used.
+         *
          * @return A 1x1 identity matrix
          */
-        static matType identity()
-        requires (width == height && width == 1) {
-            return matType(static_cast<componentType>(1));
-        }
-
-        /**
-         * Get a 2x2 identity matrix
-         * @return A 2x2 identity matrix
-         */
-        static matType identity()
-        requires (width == height && width == 2) {
-            return matType(static_cast<componentType>(1), static_cast<componentType>(0),
-                           static_cast<componentType>(0), static_cast<componentType>(1));
-        }
-
-        /**
-         * Get a 3x3 identity matrix
-         * @return A 3x3 identity matrix
-         */
-        static matType identity()
-        requires (width == height && width == 3) {
-            return matType(static_cast<componentType>(1), static_cast<componentType>(0), static_cast<componentType>(0),
-                           static_cast<componentType>(0), static_cast<componentType>(1), static_cast<componentType>(0),
-                           static_cast<componentType>(0), static_cast<componentType>(0), static_cast<componentType>(1));
-        }
-
-        /**
-         * Get a 4x4 identity matrix
-         * @return A 4x4 identity matrix
-         */
-        static matType identity()
-        requires (width == height && width == 4) {
-            return matType(static_cast<componentType>(1), static_cast<componentType>(0), static_cast<componentType>(0), static_cast<componentType>(0),
-                           static_cast<componentType>(0), static_cast<componentType>(1), static_cast<componentType>(0), static_cast<componentType>(0),
-                           static_cast<componentType>(0), static_cast<componentType>(0), static_cast<componentType>(1), static_cast<componentType>(0),
-                           static_cast<componentType>(0), static_cast<componentType>(0), static_cast<componentType>(0), static_cast<componentType>(1));
-        }
-
-        /**
-         * Get the identity matrix
-         * @return An identity matrix
-         */
-        static matType identity()
-        requires (width == height && width > 4) {
-            std::array<componentType, width * height> init;
-            for (int i = 0; i < width; ++i) {
-                for (int j = 0; j < height; ++j) {
-                    if (i == j) init[i * width + j] = 1;
-                    else init[i * width + j] = 0;
+        static matType identity() requires (width == height) {
+            if constexpr (width == 1) {
+                return matType(static_cast<componentType>(1));
+            } else if constexpr (width == 2) {
+                return matType(static_cast<componentType>(1), static_cast<componentType>(0),
+                               static_cast<componentType>(0), static_cast<componentType>(1));
+            } else if constexpr (width == 3) {
+                return matType(static_cast<componentType>(1), static_cast<componentType>(0), static_cast<componentType>(0),
+                               static_cast<componentType>(0), static_cast<componentType>(1), static_cast<componentType>(0),
+                               static_cast<componentType>(0), static_cast<componentType>(0), static_cast<componentType>(1));
+            } else if constexpr (width == 4) {
+                return matType(static_cast<componentType>(1), static_cast<componentType>(0), static_cast<componentType>(0), static_cast<componentType>(0),
+                               static_cast<componentType>(0), static_cast<componentType>(1), static_cast<componentType>(0), static_cast<componentType>(0),
+                               static_cast<componentType>(0), static_cast<componentType>(0), static_cast<componentType>(1), static_cast<componentType>(0),
+                               static_cast<componentType>(0), static_cast<componentType>(0), static_cast<componentType>(0), static_cast<componentType>(1));
+            } else {
+                // Slow fallback, has to make a whole array
+                std::array<componentType, width * height> init;
+                for (int i = 0; i < width; ++i) {
+                    for (int j = 0; j < height; ++j) {
+                        if (i == j) init[i * width + j] = 1;
+                        else init[i * width + j] = 0;
+                    }
                 }
-            }
 
-            return matType(init);
+                return matType(init);
+            }
         }
 
         // Assignment

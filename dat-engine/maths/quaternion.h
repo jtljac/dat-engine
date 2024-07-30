@@ -6,6 +6,6 @@
 
 #include "quaternion/quat.h"
 
-namespace DatMaths {
+namespace DatEngine::DatMaths {
 
 }

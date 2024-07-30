@@ -10,7 +10,7 @@
 #include "vector/vec4.h"
 #include "vector/vecn.h"
 
-namespace DatMaths {
+namespace DatEngine::DatMaths {
     /** A floating point 1 component vector */
     using vec1 = Vector<1, float>;
 

@@ -3,3 +3,5 @@
 //
 
 #include "rendering/irenderer.h"
+
+using namespace DatEngine;

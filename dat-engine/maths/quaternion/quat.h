@@ -7,7 +7,7 @@
 #include <util/type-traits.h>
 #include <maths/vector/vec3.h>
 
-namespace DatMaths {
+namespace DatEngine::DatMaths {
     template<floating_point componentType>
     struct Quaternion {
         typedef Quaternion<componentType> quatType;
