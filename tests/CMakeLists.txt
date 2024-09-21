@@ -10,6 +10,7 @@ add_executable(dat-engine-tests
         unit-test.cpp
         vector-tests.cpp
         matrix-tests.cpp
+        sparse-map-tests.cpp
 #        dat-mat-test.cpp
 #        dat-quat-tests.cpp
 )
