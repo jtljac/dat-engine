@@ -13,6 +13,7 @@ namespace DatEngine::Constants {
 
     namespace CVars {
         constexpr uint32_t MAX_INTEGER = @DAT_ENGINE_MAX_INTEGER_CVARS@;
+        constexpr uint32_t MAX_BOOL = @DAT_ENGINE_MAX_BOOL_CVARS@;
         constexpr uint32_t MAX_FLOAT = @DAT_ENGINE_MAX_FLOAT_CVARS@;
         constexpr uint32_t MAX_STRING = @DAT_ENGINE_MAX_STRING_CVARS@;
     }

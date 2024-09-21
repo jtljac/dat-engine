@@ -1,4 +1,4 @@
-/**
+/*
  * Created using https://vkguide.dev/docs/extra-chapter/cvar_system/
  */
 
@@ -12,6 +12,15 @@
 #include "type-traits.h"
 namespace DatEngine {
     struct CVarParameter;
+
+    /**
+     * The category that a CVar belongs to
+     */
+    enum class CVarCategory : uint8_t {
+        General,
+        Graphics,
+        Networking
+    };
 
     /**
      * Flags that describe the behaviour of a CVar
@@ -61,63 +70,92 @@ namespace DatEngine {
          *
          * @param name The name of the CVar
          * @param description The description of the CVar
+         * @param category The category of the CVar
          * @param value The value of the CVar
          * @return A CVarParameter Representing the CVar
          */
-        virtual CVarParameter* createIntCVar(const char* name, const char* description, int32_t value) = 0;
+        virtual CVarParameter* createIntCVar(const char* name, const char* description, CVarCategory category, int32_t value) = 0;
 
         /**
          * Create a new Integer CVar
          *
          * @param name The name of the CVar
          * @param description The description of the CVar
+         * @param category The category of the CVar
          * @param initialValue The initial value of the CVar
          * @param value The value of the CVar
          * @return A CVarParameter Representing the CVar
          */
-        virtual CVarParameter* createIntCVar(const char* name, const char* description, int32_t initialValue, int32_t value) = 0;
+        virtual CVarParameter* createIntCVar(const char* name, const char* description, CVarCategory category, int32_t initialValue, int32_t value) = 0;
+
+        /**
+         * Create a new Boolean CVar
+         *
+         * @param name The name of the CVar
+         * @param description The description of the CVar
+         * @param category The category of the CVar
+         * @param value The value of the CVar
+         * @return A CVarParameter Representing the CVar
+         */
+        virtual CVarParameter* createBoolCVar(const char* name, const char* description, CVarCategory category, bool value) = 0;
+
+        /**
+         * Create a new Boolean CVar
+         *
+         * @param name The name of the CVar
+         * @param description The description of the CVar
+         * @param category The category of the CVar
+         * @param initialValue The initial value of the CVar
+         * @param value The value of the CVar
+         * @return A CVarParameter Representing the CVar
+         */
+        virtual CVarParameter* createBoolCVar(const char* name, const char* description, CVarCategory category, bool initialValue, bool value) = 0;
 
         /**
          * Create a new Float CVar
          *
          * @param name The name of the CVar
          * @param description The description of the CVar
+         * @param category The category of the CVar
          * @param value The value of the CVar
          * @return A CVarParameter Representing the CVar
          */
-        virtual CVarParameter* createFloatCVar(const char* name, const char* description, double value) = 0;
+        virtual CVarParameter* createFloatCVar(const char* name, const char* description, CVarCategory category, double value) = 0;
 
         /**
          * Create a new Float CVar
          *
          * @param name The name of the CVar
          * @param description The description of the CVar
+         * @param category The category of the CVar
          * @param initialValue The initial value of the CVar
          * @param value The value of the CVar
          * @return A CVarParameter Representing the CVar
          */
-        virtual CVarParameter* createFloatCVar(const char* name, const char* description, double initialValue, double value) = 0;
+        virtual CVarParameter* createFloatCVar(const char* name, const char* description, CVarCategory category, double initialValue, double value) = 0;
 
         /**
          * Create a new String CVar
          *
          * @param name The name of the CVar
          * @param description The description of the CVar
+         * @param category The category of the CVar
          * @param value The value of the CVar
          * @return A CVarParameter Representing the CVar
          */
-        virtual CVarParameter* createStringCVar(const char* name, const char* description, const char* value) = 0;
+        virtual CVarParameter* createStringCVar(const char* name, const char* description, CVarCategory category, const char* value) = 0;
 
         /**
          * Create a new String CVar
          *
          * @param name The name of the CVar
          * @param description The description of the CVar
+         * @param category The category of the CVar
          * @param initialValue The initial value of the CVar
          * @param value The value of the CVar
          * @return A CVarParameter Representing the CVar
          */
-        virtual CVarParameter* createStringCVar(const char* name, const char* description, const char* initialValue, const char* value) = 0;
+        virtual CVarParameter* createStringCVar(const char* name, const char* description, CVarCategory category, const char* initialValue, const char* value) = 0;
 
         /**
          * Get the value of a Integer CVar by it's hash
@@ -173,8 +211,10 @@ namespace DatEngine {
      * @tparam T The type of the CVar
      *
      * @see CVarInt
+     * @see CVarBool
      * @see CVarFloat
      * @see CVarString
+     * @see CVarEnum
      */
     template <typename T>
     struct CVar {
@@ -183,6 +223,7 @@ namespace DatEngine {
         uint32_t index = 0;
         using cvarType = T;
     public:
+        virtual ~CVar() = default;
         /**
          * get the value of the CVar
          * @return The current value of the CVar
@@ -214,8 +255,8 @@ namespace DatEngine {
      * CVar Specialisation for Integer values
      */
     struct CVarInt : CVar<int32_t> {
-        CVarInt(const char* name, const char* description, int defaultValue, CVarFlags flags = CVarFlags::None);
-        CVarInt(const char* name, const char* description, int value, int defaultValue, CVarFlags flags = CVarFlags::None);
+        CVarInt(const char* name, const char* description, CVarCategory category, int defaultValue, CVarFlags flags = CVarFlags::None);
+        CVarInt(const char* name, const char* description, CVarCategory category, int value, int defaultValue, CVarFlags flags = CVarFlags::None);
 
         int get() override;
         int getDefault() override;
@@ -225,11 +266,25 @@ namespace DatEngine {
     };
 
     /**
+     * CVar Specialisation for Boolean values
+     */
+    struct CVarBool : CVar<bool> {
+        CVarBool(const char* name, const char* description, CVarCategory category, bool defaultValue, CVarFlags flags = CVarFlags::None);
+        CVarBool(const char* name, const char* description, CVarCategory category, bool value, bool defaultValue, CVarFlags flags = CVarFlags::None);
+
+        bool get() override;
+        bool getDefault() override;
+        bool* getPtr() override;
+        void set(bool value) override;
+        bool reset() override;
+    };
+
+    /**
      * CVar Specialisation for floating point values
      */
     struct CVarFloat : CVar<double> {
-        CVarFloat(const char* name, const char* description, double defaultValue, CVarFlags flags = CVarFlags::None);
-        CVarFloat(const char* name, const char* description, double value, double defaultValue,
+        CVarFloat(const char* name, const char* description, CVarCategory category, double defaultValue, CVarFlags flags = CVarFlags::None);
+        CVarFloat(const char* name, const char* description, CVarCategory category, double value, double defaultValue,
                   CVarFlags flags = CVarFlags::None);
 
         /**
@@ -249,8 +304,8 @@ namespace DatEngine {
      * CVar Specialisation for String values
      */
     struct CVarString : CVar<std::string> {
-        CVarString(const char* name, const char* description, const char* defaultValue, CVarFlags flags = CVarFlags::None);
-        CVarString(const char* name, const char* description, const char* value, const char* defaultValue,
+        CVarString(const char* name, const char* description, CVarCategory category, const char* defaultValue, CVarFlags flags = CVarFlags::None);
+        CVarString(const char* name, const char* description, CVarCategory category, const char* value, const char* defaultValue,
                    CVarFlags flags = CVarFlags::None);
 
         std::string get() override;
@@ -260,24 +315,45 @@ namespace DatEngine {
         std::string reset() override;
     };
 
+    /**
+     * CVar Specialisation for Integer Enum Types
+     * @tparam T The intergral enum to represent
+     */
     template <integralEnumType T>
     struct CVarEnum : CVarInt {
-        CVarEnum(const char* name, const char* description, T defaultValue, const CVarFlags flags = CVarFlags::None) :
-            CVarInt(name, description, static_cast<int32_t>(defaultValue), flags) {}
-        CVarEnum(const char* name, const char* description, T value, T defaultValue, const CVarFlags flags = CVarFlags::None) :
-            CVarInt(name, description, static_cast<int32_t>(value), static_cast<int32_t>(defaultValue), flags) {}
+        CVarEnum(const char* name, const char* description, const CVarCategory category, T defaultValue, const CVarFlags flags = CVarFlags::None) :
+            CVarInt(name, description, category, static_cast<int32_t>(defaultValue), flags) {}
+        CVarEnum(const char* name, const char* description, T value, const CVarCategory category, T defaultValue, const CVarFlags flags = CVarFlags::None) :
+            CVarInt(name, description, category, static_cast<int32_t>(value), static_cast<int32_t>(defaultValue), flags) {}
 
+        /**
+         * Get the value stored in the CVar as the enum type
+         * @return The enum value stored in the CVar
+         */
         T getEnum() {
             return static_cast<T>(CVarInt::get());
         }
+
+        /**
+         * Get the default value stored in the CVar as the enum type
+         * @return The default enum value stored in the CVar
+         */
         T getDefaultEnum() {
             return static_cast<T>(CVarInt::getDefault());
         }
 
+        /**
+         * Set the value of the CVar using the enum representation
+         * @param value The new value of the CVar
+         */
         void set(T value) {
             CVarInt::set(static_cast<int32_t>(value));
         }
 
+        /**
+         * Reset the CVar value to it's default and return the Enum representation
+         * @return T The new enum value stored in the CVar
+         */
         T resetEnum() {
             return static_cast<T>(CVarInt::reset());
         }

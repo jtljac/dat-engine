@@ -22,6 +22,7 @@ set_property(CACHE DAT_ENGINE_TARGET_PLATFORM PROPERTY STRINGS linux windows mac
 # CVars
 
 set(DAT_ENGINE_MAX_INTEGER_CVARS 500 CACHE STRING "The maximum number of Integer CVars")
+set(DAT_ENGINE_MAX_BOOL_CVARS 200 CACHE STRING "The maximum number of Boolean CVars")
 set(DAT_ENGINE_MAX_FLOAT_CVARS 200 CACHE STRING "The maximum number of Float CVars")
 set(DAT_ENGINE_MAX_STRING_CVARS 200 CACHE STRING "The maximum number of String CVars")
 

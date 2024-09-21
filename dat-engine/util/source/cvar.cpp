@@ -22,6 +22,8 @@ using namespace DatEngine;
 enum class CVarType : uint8_t {
     /** @link int32_t */
     INT,
+    /** @c bool */
+    BOOL,
     /** @c double */
     FLOAT,
     /** @link std::string */
@@ -47,6 +49,8 @@ struct DatEngine::CVarParameter {
     std::string name;
     /** A breif description of the CVar */
     std::string description;
+
+    CVarCategory category;
 };
 
 /**
@@ -184,6 +188,9 @@ public:
     /** The array containing Integer CVars */
     CVarArray<int32_t> intCVars{Constants::CVars::MAX_INTEGER};
 
+    /** The array containing Boolean CVars */
+    CVarArray<bool> boolCVars{Constants::CVars::MAX_BOOL};
+
     /** The array containing Float CVars */
     CVarArray<double> floatCVars{Constants::CVars::MAX_FLOAT};
 
@@ -278,55 +285,82 @@ public:
      * Create a new Integer CVar
      * @param name The name of the CVar
      * @param description A description for the CVar
+     * @param category The category of the CVar
      * @param value The value of the CVar
      * @return A pointer to the CVarParameter
      */
-    CVarParameter* createIntCVar(const char* name, const char* description, int32_t value) override;
+    CVarParameter* createIntCVar(const char* name, const char* description, CVarCategory category, int32_t value) override;
     /**
      * Create a new Integer CVar with a default value
      * @param name The name of the CVar
      * @param description A description for the CVar
+     * @param category The category of the CVar
      * @param defaultValue The default value of the CVar
      * @param value The value of the CVar
      * @return A pointer to the CVarParameter
      */
-    CVarParameter* createIntCVar(const char* name, const char* description, int32_t defaultValue, int32_t value) override;
+    CVarParameter* createIntCVar(const char* name, const char* description, CVarCategory category, int32_t defaultValue, int32_t value) override;
+
+    /**
+     * Create a new boolean CVar
+     * @param name The name of the CVar
+     * @param description A description for the CVar
+     * @param category The category of the CVar
+     * @param value The value of the CVar
+     * @return A pointer to the CVarParameter
+     */
+    CVarParameter* createBoolCVar(const char* name, const char* description, CVarCategory category, bool value) override;
+
+    /**
+     * Create a new boolean CVar with a default value
+     * @param name The name of the CVar
+     * @param description A description for the CVar
+     * @param category The category of the CVar
+     * @param defaultValue The default value of the CVar
+     * @param value The value of the CVar
+     * @return A pointer to the CVarParameter
+     */
+    CVarParameter* createBoolCVar(const char* name, const char* description, CVarCategory category, bool defaultValue, bool value) override;
 
     /**
      * Create a new Float CVar
      * @param name The name of the CVar
      * @param description A description for the CVar
+     * @param category The category of the CVar
      * @param value The value of the CVar
      * @return A pointer to the CVarParameter
      */
-    CVarParameter* createFloatCVar(const char* name, const char* description, double value) override;
+    CVarParameter* createFloatCVar(const char* name, const char* description, CVarCategory category, double value) override;
     /**
      * Create a new Float CVar with a default value
      * @param name The name of the CVar
      * @param description A description for the CVar
+     * @param category The category of the CVar
      * @param defaultValue The default value of the CVar
      * @param value The value of the CVar
      * @return A pointer to the CVarParameter
      */
-    CVarParameter* createFloatCVar(const char* name, const char* description, double defaultValue, double value) override;
+    CVarParameter* createFloatCVar(const char* name, const char* description, CVarCategory category, double defaultValue, double value) override;
 
     /**
      * Create a new String CVar
      * @param name The name of the CVar
      * @param description A description for the CVar
+     * @param category The category of the CVar
      * @param value The value of the CVar
      * @return A pointer to the CVarParameter
      */
-    CVarParameter* createStringCVar(const char* name, const char* description, const char* value) override;
+    CVarParameter* createStringCVar(const char* name, const char* description, CVarCategory category, const char* value) override;
     /**
      * Create a new String CVar with a default value
      * @param name The name of the CVar
      * @param description A description for the CVar
+     * @param category The category of the CVar
      * @param defaultValue The default value of the CVar
      * @param value The value of the CVar
      * @return A pointer to the CVarParameter
      */
-    CVarParameter* createStringCVar(const char* name, const char* description, const char* defaultValue, const char* value) override;
+    CVarParameter* createStringCVar(const char* name, const char* description, CVarCategory category, const char* defaultValue, const char* value) override;
 
     /**
      * Get the CVarSystem implementation, which grants access to hidden functios only accessabile in this file
@@ -341,10 +375,11 @@ private:
      * Initialise a CVarParameter
      * @param name The name of the CVar
      * @param description The description of the CVar
+     * @param category The category of the CVar
      * @param type The type of the CVar
      * @return A pointer to a new CVar paramter
      */
-    CVarParameter* initCvar(const char* name, const char* description, const CVarType& type);
+    CVarParameter* initCvar(const char* name, const char* description, CVarCategory category, const CVarType& type);
     std::unordered_map<uint32_t, CVarParameter> savedCVars;
 };
 
@@ -357,10 +392,14 @@ CVarSystem* CVarSystem::get() {
     return &cvarSys;
 }
 
-
 template<>
 CVarArray<int32_t>* ::CVarSystemImpl::getCVarArray<int32_t>() {
     return &intCVars;
+}
+
+template<>
+CVarArray<bool>* ::CVarSystemImpl::getCVarArray<bool>() {
+    return &boolCVars;
 }
 
 template<>
@@ -411,12 +450,12 @@ void ::CVarSystemImpl::setStringCVar(const StringUtils::StringHash hash, const c
     setCVarCurrent<std::string>(hash, value);
 }
 
-CVarParameter* ::CVarSystemImpl::createIntCVar(const char* name, const char* description, const int32_t value) {
-    return createIntCVar(name, description, value, value);
+CVarParameter* ::CVarSystemImpl::createIntCVar(const char* name, const char* description, const CVarCategory category, const int32_t value) {
+    return createIntCVar(name, description, category, value, value);
 }
 
-CVarParameter* ::CVarSystemImpl::createIntCVar(const char* name, const char* description, const int32_t defaultValue, const int32_t value) {
-    CVarParameter* param = initCvar(name, description, CVarType::INT);
+CVarParameter* ::CVarSystemImpl::createIntCVar(const char* name, const char* description, const CVarCategory category, const int32_t defaultValue, const int32_t value) {
+    CVarParameter* param = initCvar(name, description, category, CVarType::INT);
     if (!param) return nullptr;
 
     getCVarArray<int32_t>()->add(defaultValue, value, param);
@@ -424,12 +463,25 @@ CVarParameter* ::CVarSystemImpl::createIntCVar(const char* name, const char* des
     return param;
 }
 
-CVarParameter* ::CVarSystemImpl::createFloatCVar(const char* name, const char* description, const double value) {
-    return createFloatCVar(name, description, value, value);
+CVarParameter* ::CVarSystemImpl::createBoolCVar(const char* name, const char* description, const CVarCategory category, const bool value) {
+    return createBoolCVar(name, description, category, value, value);
 }
 
-CVarParameter* ::CVarSystemImpl::createFloatCVar(const char* name, const char* description, const double defaultValue, const double value) {
-    CVarParameter* param = initCvar(name, description, CVarType::FLOAT);
+CVarParameter* ::CVarSystemImpl::createBoolCVar(const char* name, const char* description, const CVarCategory category, const bool defaultValue, const bool value) {
+    CVarParameter* param = initCvar(name, description, category, CVarType::BOOL);
+    if (!param) return nullptr;
+
+    getCVarArray<bool>()->add(defaultValue, value, param);
+
+    return param;
+}
+
+CVarParameter* ::CVarSystemImpl::createFloatCVar(const char* name, const char* description, const CVarCategory category, const double value) {
+    return createFloatCVar(name, description, category, value, value);
+}
+
+CVarParameter* ::CVarSystemImpl::createFloatCVar(const char* name, const char* description, const CVarCategory category, const double defaultValue, const double value) {
+    CVarParameter* param = initCvar(name, description, category, CVarType::FLOAT);
     if (!param) return nullptr;
 
     getCVarArray<double>()->add(defaultValue, value, param);
@@ -437,12 +489,12 @@ CVarParameter* ::CVarSystemImpl::createFloatCVar(const char* name, const char* d
     return param;
 }
 
-CVarParameter* ::CVarSystemImpl::createStringCVar(const char* name, const char* description, const char* value) {
-    return createStringCVar(name, description, value, value);
+CVarParameter* ::CVarSystemImpl::createStringCVar(const char* name, const char* description, const CVarCategory category, const char* value) {
+    return createStringCVar(name, description, category, value, value);
 }
 
-CVarParameter* ::CVarSystemImpl::createStringCVar(const char* name, const char* description, const char* defaultValue, const char* value) {
-    CVarParameter* param = initCvar(name, description, CVarType::STRING);
+CVarParameter* ::CVarSystemImpl::createStringCVar(const char* name, const char* description, const CVarCategory category, const char* defaultValue, const char* value) {
+    CVarParameter* param = initCvar(name, description, category, CVarType::STRING);
     if (!param) return nullptr;
 
     getCVarArray<std::string>()->add(defaultValue, value, param);
@@ -450,7 +502,7 @@ CVarParameter* ::CVarSystemImpl::createStringCVar(const char* name, const char* 
     return param;
 }
 
-CVarParameter* ::CVarSystemImpl::initCvar(const char* name, const char* description, const CVarType& type) {
+CVarParameter* ::CVarSystemImpl::initCvar(const char* name, const char* description, const CVarCategory category, const CVarType& type) {
     if (getCVar(name))
         return nullptr;
 
@@ -462,6 +514,7 @@ CVarParameter* ::CVarSystemImpl::initCvar(const char* name, const char* descript
     newParameter.name = name;
     newParameter.description = description;
     newParameter.type = type;
+    newParameter.category = category;
 
     return &newParameter;
 }
@@ -527,15 +580,15 @@ T resetCVarValueByIndex(uint32_t index) {
 }
 
 // Int
-CVarInt::CVarInt(const char* name, const char* description, const int defaultValue, const CVarFlags flags) {
-    CVarParameter* cvar = CVarSystem::get()->createIntCVar(name, description, defaultValue);
+CVarInt::CVarInt(const char* name, const char* description, const CVarCategory category, const int defaultValue, const CVarFlags flags) {
+    CVarParameter* cvar = CVarSystem::get()->createIntCVar(name, description, category, defaultValue);
     cvar->flags = flags;
     index = cvar->arrayIndex;
 }
 
-CVarInt::CVarInt(const char* name, const char* description, const int value, const int defaultValue,
+CVarInt::CVarInt(const char* name, const char* description, const CVarCategory category, const int value, const int defaultValue,
                  const CVarFlags flags) {
-    CVarParameter* cvar = CVarSystem::get()->createIntCVar(name, description, defaultValue, value);
+    CVarParameter* cvar = CVarSystem::get()->createIntCVar(name, description, category, defaultValue, value);
     cvar->flags = flags;
     index = cvar->arrayIndex;
 }
@@ -560,15 +613,49 @@ int32_t CVarInt::reset() {
     return resetCVarValueByIndex<cvarType>(index);
 }
 
-// Double
-CVarFloat::CVarFloat(const char* name, const char* description, const double defaultValue, const CVarFlags flags) {
-    CVarParameter* cvar = CVarSystem::get()->createFloatCVar(name, description, defaultValue);
+// Bool
+CVarBool::CVarBool(const char* name, const char* description, const CVarCategory category, const bool defaultValue, const CVarFlags flags) {
+    CVarParameter* cvar = CVarSystem::get()->createBoolCVar(name, description, category, defaultValue);
     cvar->flags = flags;
     index = cvar->arrayIndex;
 }
 
-CVarFloat::CVarFloat(const char* name, const char* description, const double value, const double defaultValue, const CVarFlags flags) {
-    CVarParameter* cvar = CVarSystem::get()->createFloatCVar(name, description, defaultValue, value);
+CVarBool::CVarBool(const char* name, const char* description, const CVarCategory category, const bool value, const bool defaultValue,
+                 const CVarFlags flags) {
+    CVarParameter* cvar = CVarSystem::get()->createBoolCVar(name, description, category, defaultValue, value);
+    cvar->flags = flags;
+    index = cvar->arrayIndex;
+}
+
+bool CVarBool::get() {
+    return getCVarValueByIndex<cvarType>(index);
+}
+
+bool CVarBool::getDefault() {
+    return getCVarDefaultValueByIndex<cvarType>(index);
+}
+
+bool* CVarBool::getPtr() {
+    return getCVarValuePtrByIndex<cvarType>(index);
+}
+
+void CVarBool::set(const bool value) {
+    setCVarValueByIndex<cvarType>(index, value);
+}
+
+bool CVarBool::reset() {
+    return resetCVarValueByIndex<cvarType>(index);
+}
+
+// Double
+CVarFloat::CVarFloat(const char* name, const char* description, const CVarCategory category, const double defaultValue, const CVarFlags flags) {
+    CVarParameter* cvar = CVarSystem::get()->createFloatCVar(name, description, category, defaultValue);
+    cvar->flags = flags;
+    index = cvar->arrayIndex;
+}
+
+CVarFloat::CVarFloat(const char* name, const char* description, const CVarCategory category, const double value, const double defaultValue, const CVarFlags flags) {
+    CVarParameter* cvar = CVarSystem::get()->createFloatCVar(name, description, category, defaultValue, value);
     cvar->flags = flags;
     index = cvar->arrayIndex;
 }
@@ -598,14 +685,14 @@ double CVarFloat::reset() {
 }
 
 // String
-CVarString::CVarString(const char* name, const char* description, const char* defaultValue, const CVarFlags flags) {
-    CVarParameter* cvar = CVarSystem::get()->createStringCVar(name, description, defaultValue);
+CVarString::CVarString(const char* name, const char* description, const CVarCategory category, const char* defaultValue, const CVarFlags flags) {
+    CVarParameter* cvar = CVarSystem::get()->createStringCVar(name, description, category, defaultValue);
     cvar->flags = flags;
     index = cvar->arrayIndex;
 }
 
-CVarString::CVarString(const char* name, const char* description, const char* value, const char* defaultValue, const CVarFlags flags) {
-    CVarParameter* cvar = CVarSystem::get()->createStringCVar(name, description, defaultValue, value);
+CVarString::CVarString(const char* name, const char* description, const CVarCategory category, const char* value, const char* defaultValue, const CVarFlags flags) {
+    CVarParameter* cvar = CVarSystem::get()->createStringCVar(name, description, category, defaultValue, value);
     cvar->flags = flags;
     index = cvar->arrayIndex;
 }
