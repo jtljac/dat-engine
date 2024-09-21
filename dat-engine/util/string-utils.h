@@ -1,4 +1,4 @@
-/**
+/*
 * The code in this file adapted from: https://github.com/vblanco20-1/vulkan-guide/blob/164c144c4819840a9e59cc955a91b74abea4bd6f/extra-engine/string_utils.h
 * Under the MIT License: https://github.com/vblanco20-1/vulkan-guide/blob/164c144c4819840a9e59cc955a91b74abea4bd6f/LICENSE.txt
 *

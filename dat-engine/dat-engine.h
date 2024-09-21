@@ -1,16 +1,23 @@
 #pragma once
 
-#include <maths/vector.h>
-#include <SDL.h>
 #include <iostream>
+#include <maths/vector.h>
+
+#include <rendering/irenderer.h>
+
+struct SDL_Window;
 
 namespace DatEngine {
     enum class EngineRunningState {
 
     };
 
-    class DatEngine {
+    // TODO: Split into server and client
+    class Engine {
+        // Window
+        SDL_Window* window = nullptr;
         // Renderer
+        IRenderer* renderer = nullptr;
         // Asset Manager
         // Input Manager
         // Audio Engine
@@ -18,31 +25,14 @@ namespace DatEngine {
 
         bool shouldClose = false;
 
+        Engine() = default;
+
     public:
-        void init() {
-            SDL_Init(SDL_INIT_EVERYTHING);
+        static Engine* getInstance() {
+            static Engine instance{};
+            return &instance;
         }
-
-        void startLoop() {
-
-            uint64_t lastTime = SDL_GetTicks64();
-            while (!shouldClose) {
-                uint64_t now = SDL_GetTicks();
-                float deltaTime = ((float) (now - lastTime)) / 1000;
-
-                // Input
-                //   Handle SDL events
-                SDL_Event event;
-                while (SDL_PollEvent(&event) != 0) {
-                    switch (event.type) {
-                    }
-                }
-
-                // Update
-
-                // Render
-                // UI
-            }
-        }
+        bool init(IRenderer* renderer);
+        void startLoop();
     };
 }

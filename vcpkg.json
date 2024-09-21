@@ -3,9 +3,6 @@
   "version-string" : "1.0.0",
   "builtin-baseline" : "6062c8fe02d38b10d5291411bc235ae4d02cfe6c",
   "dependencies" : [ {
-    "name" : "sdl2",
-    "version>=" : "2.30.5#1"
-  }, {
     "name" : "spdlog",
     "version>=" : "1.14.1"
   }, {
@@ -20,5 +17,11 @@
   }, {
     "name" : "fmt",
     "version>=" : "10.2.1#2"
+  }, {
+    "name" : "sdl2",
+    "version>=" : "2.30.7",
+    "features": [
+      "vulkan"
+    ]
   } ]
 }

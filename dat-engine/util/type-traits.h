@@ -1,4 +1,4 @@
-/**
+/*
  * Type-traits and concepts used by dat-engine
  */
 

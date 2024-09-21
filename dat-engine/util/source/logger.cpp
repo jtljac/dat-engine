@@ -35,11 +35,11 @@ void DatLog::init() {
 }
 
 std::shared_ptr<spdlog::logger>& DatLog::getCoreLogger() {
-    assert(DatLog::core != nullptr);
+    assert(DatLog::core != nullptr && "Logger wasn't initialised before first call");
     return core;
 }
 
 std::shared_ptr<spdlog::logger>& DatLog::getGameLogger() {
-    assert(DatLog::game != nullptr);
+    assert(DatLog::game != nullptr && "Logger wasn't initialised before first call");
     return game;
 }

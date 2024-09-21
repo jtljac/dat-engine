@@ -4,27 +4,27 @@
 
 #pragma once
 
-#include "iwindow.h"
-#include <SDL.h>
-#include <vector>
-#include <string>
+#include <cstdint>
 
 namespace DatEngine {
+    /** The available fullscreen modes */
+    enum class WindowMode : uint8_t {
+        /** A window with a title bar */
+        Windowed,
+        /** A window without a title bar */
+        Borderless,
+        /** Dedicated fullscreen mode */
+        Fullscreen
+    };
+
     class IRenderer {
-    protected:
-        std::vector<IWindow*> windows;
+    public:
+        virtual ~IRenderer() = default;
+
+        virtual int getWindowFlags() = 0;
 
         virtual bool initialise() = 0;
-        virtual void cleanup() {
-            for (const auto& window: windows) {
-                delete window;
-            }
 
-            windows.clear();
-        };
-
-        virtual IWindow* createWindow(int width, int height, std::string name, uint32_t flags) {
-            //        SDL_CreateWindow(name.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, flags);
-        }
+        virtual void cleanup() = 0;
     };
 }

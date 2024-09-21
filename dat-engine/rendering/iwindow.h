@@ -6,8 +6,9 @@
 
 #include <maths/vector.h>
 
+struct SDL_Window;
+
 namespace DatEngine {
-    struct SDL_Window;
 
     class IWindow {
     protected:
