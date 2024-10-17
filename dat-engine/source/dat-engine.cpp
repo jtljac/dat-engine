@@ -12,11 +12,11 @@ using namespace DatEngine;
 
 CVarInt windowWidthCVar("IWindowWidth", "The width of the game window", CVarCategory::Graphics, 1280, CVarFlags::Persistent);
 CVarInt windowHeightCVar("IWindowHeight", "The height of the game window", CVarCategory::Graphics, 720, CVarFlags::Persistent);
-CVarEnum windowModeCvar("EWindowMode", "How to display the game window", CVarCategory::Graphics, WindowMode::Windowed,
-                        CVarFlags::Persistent);
+CVarEnum windowModeCVar("EWindowMode", "How to display the game window", CVarCategory::Graphics,
+                        DatRendering::WindowMode::Windowed, CVarFlags::Persistent);
 
 
-bool Engine::init(IRenderer* renderer) {
+bool Engine::init(DatRendering::IRenderer* renderer) {
     DatLog::init();
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
         CORE_CRITICAL("Failed to initialize SDL - %s", SDL_GetError());
@@ -27,11 +27,11 @@ bool Engine::init(IRenderer* renderer) {
 
     int windowFlags = renderer->getWindowFlags();
 
-    switch (windowModeCvar.getEnum()) {
-        case WindowMode::Borderless:
+    switch (windowModeCVar.getEnum()) {
+        case DatRendering::WindowMode::Borderless:
             windowFlags |= SDL_WINDOW_BORDERLESS;
             break;
-        case WindowMode::Fullscreen:
+        case DatRendering::WindowMode::Fullscreen:
             windowFlags |= SDL_WINDOW_FULLSCREEN;
             break;
         default:;
@@ -82,4 +82,8 @@ void Engine::startLoop() {
         // Render
         // UI
     }
+}
+
+SDL_Window* Engine::getWindow() const {
+    return window;
 }

@@ -17,7 +17,7 @@ namespace DatEngine {
         // Window
         SDL_Window* window = nullptr;
         // Renderer
-        IRenderer* renderer = nullptr;
+        DatRendering::IRenderer* renderer = nullptr;
         // Asset Manager
         // Input Manager
         // Audio Engine
@@ -32,7 +32,11 @@ namespace DatEngine {
             static Engine instance{};
             return &instance;
         }
-        bool init(IRenderer* renderer);
+
+        bool init(DatRendering::IRenderer* renderer);
         void startLoop();
+
+        // Util
+        [[nodiscard]] SDL_Window* getWindow() const;
     };
 }
