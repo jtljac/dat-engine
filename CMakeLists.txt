@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.22)
 
-project(dat-engine VERSION 1.0.0 DESCRIPTION "Top Level")
+project(dat-engine VERSION 1.0.0
+                   DESCRIPTION "Top Level"
+                   LANGUAGES CXX)
 
 set(DAT_ENGINE_TITLE "Dat Engine")
 string(TIMESTAMP TODAY "%Y/%m/%d")

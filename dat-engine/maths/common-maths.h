@@ -230,6 +230,6 @@ namespace DatEngine::DatMaths {
     template<typename type>
     requires comparable_to<type, type>
     bool clamp(type value, type min, type max) {
-        return max(min(value, max), min);
+        return DatMaths::max(DatMaths::min(value, max), min);
     }
 }
