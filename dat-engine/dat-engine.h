@@ -3,7 +3,7 @@
 #include <iostream>
 #include <maths/vector.h>
 
-#include <rendering/irenderer.h>
+#include <rendering/igpu.h>
 
 struct SDL_Window;
 
@@ -17,7 +17,7 @@ namespace DatEngine {
         // Window
         SDL_Window* window = nullptr;
         // Renderer
-        DatRendering::IRenderer* renderer = nullptr;
+        DatGPU::igpu* renderer = nullptr;
         // Asset Manager
         // Input Manager
         // Audio Engine
@@ -33,7 +33,7 @@ namespace DatEngine {
             return &instance;
         }
 
-        bool init(DatRendering::IRenderer* renderer);
+        bool init(DatGPU::igpu* renderer);
         void startLoop();
 
         // Util

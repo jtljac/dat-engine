@@ -5,7 +5,7 @@ namespace vk {
     class ImageView;
 }
 
-namespace DatEngine::DatRendering::DatVk {
+namespace DatEngine::DatGPU::DatVk {
     struct SwapchainData {
         vk::Image image;
         vk::ImageView imageView;

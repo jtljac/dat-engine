@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace DatEngine::DatRendering {
+namespace DatEngine::DatGPU {
     /** The available fullscreen modes */
     enum class WindowMode : uint8_t {
         /** A window with a title bar */
@@ -13,9 +13,9 @@ namespace DatEngine::DatRendering {
         Fullscreen
     };
 
-    class IRenderer {
+    class igpu {
     public:
-        virtual ~IRenderer() = default;
+        virtual ~igpu() = default;
 
         virtual int getWindowFlags() = 0;
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "rendering/irenderer.h"
+#include "rendering/igpu.h"
 
 #define VULKAN_HPP_NO_EXCEPTIONS
 #define VULKAN_HPP_DISPATCH_LOADER_DYNAMIC 1
@@ -11,8 +11,8 @@
 
 #include "frame-data.h"
 
-namespace DatEngine::DatRendering::DatVk {
-    class VulkanRenderer : public IRenderer {
+namespace DatEngine::DatGPU::DatVk {
+    class VulkanGPU : public igpu {
     protected:
         /** Handle for Vulkan Instance */
         vk::Instance instance = VK_NULL_HANDLE;

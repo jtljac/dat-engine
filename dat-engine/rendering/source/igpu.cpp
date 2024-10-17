@@ -1,4 +1,4 @@
-#include "rendering/irenderer.h"
+#include "rendering/igpu.h"
 
 #include <util/cvar.h>
 
@@ -8,4 +8,4 @@ CVarInt bufferedFramesCVar("IBufferedFrames", "The number of frames to buffer in
 CVarBool enableVSyncCVar("BEnableVsync", "Enable syncing frame dispatch to display refresh", CVarCategory::Graphics, false, CVarFlags::Persistent);
 
 // Would you believe this is necessary for the above to compile into the program?
-bool DatRendering::IRenderer::initialise() {}
+bool DatGPU::igpu::initialise() {}

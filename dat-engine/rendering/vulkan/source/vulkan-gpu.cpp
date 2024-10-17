@@ -1,12 +1,12 @@
 #define VMA_IMPLEMENTATION
 #define VMA_DYNAMIC_VULKAN_FUNCTIONS 1
-#include "rendering/vulkan/vulkan-renderer.h"
+#include "rendering/vulkan/vulkan-gpu.h"
 
-#include <iostream>
-#include <ranges>
 #include <algorithm>
-#include <vector>
+#include <iostream>
 #include <queue>
+#include <ranges>
+#include <vector>
 
 #include <SDL_vulkan.h>
 
@@ -18,13 +18,13 @@
 
 VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 
-using namespace DatEngine::DatRendering::DatVk;
+using namespace DatEngine::DatGPU::DatVk;
 
 /* -------------------------------------------- */
 /* Initialisation                               */
 /* -------------------------------------------- */
 
-bool VulkanRenderer::initialise() {
+bool VulkanGPU::initialise() {
     CORE_TRACE("Initialising Vulkan Renderer");
     if (!initialiseInstance()) return false;
 #ifdef _DEBUG
@@ -44,7 +44,7 @@ bool VulkanRenderer::initialise() {
     return true;
 }
 
-bool VulkanRenderer::initialiseInstance() {
+bool VulkanGPU::initialiseInstance() {
     CORE_TRACE("Creating VK Instance");
 
     constexpr vk::ApplicationInfo applicationInfo("Test-App", // TODO: Allow custom names
@@ -96,7 +96,7 @@ bool VulkanRenderer::initialiseInstance() {
     }
 }
 
-bool VulkanRenderer::setupDebugMessenger() {
+bool VulkanGPU::setupDebugMessenger() {
     const auto func = reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(
             instance.getProcAddr("vkCreateDebugUtilsMessengerEXT"));
     if (func == nullptr) {
@@ -121,7 +121,7 @@ bool VulkanRenderer::setupDebugMessenger() {
     return true;
 }
 
-bool VulkanRenderer::initialisePhysicalDevice() {
+bool VulkanGPU::initialisePhysicalDevice() {
     CORE_TRACE("Creating VK Physical Device");
     vk::ResultValue<std::vector<vk::PhysicalDevice>> devicesResult = instance.enumeratePhysicalDevices();
     if (devicesResult.result != vk::Result::eSuccess) {
@@ -138,7 +138,7 @@ bool VulkanRenderer::initialisePhysicalDevice() {
     return true;
 }
 
-bool VulkanRenderer::initialiseDevice() {
+bool VulkanGPU::initialiseDevice() {
     CORE_TRACE("Creating VK Logical Device");
 
     // TODO: Figure out some queues
@@ -202,7 +202,7 @@ bool VulkanRenderer::initialiseDevice() {
     return true;
 }
 
-bool VulkanRenderer::initialiseSurface() {
+bool VulkanGPU::initialiseSurface() {
     VkSurfaceKHR surface;
     if (!SDL_Vulkan_CreateSurface(Engine::getInstance()->getWindow(), instance, &surface)) {
         CORE_CRITICAL("Failed to create surface with SDL.");
@@ -213,7 +213,7 @@ bool VulkanRenderer::initialiseSurface() {
     return true;
 }
 
-bool VulkanRenderer::initialiseVma() {
+bool VulkanGPU::initialiseVma() {
     CORE_TRACE("Initialising VMA");
     // const vma::AllocatorCreateInfo allocatorCreateInfo = vma::AllocatorCreateInfo({}, physicalDevice, device)
     //                                                              .setInstance(instance)
@@ -240,7 +240,7 @@ bool VulkanRenderer::initialiseVma() {
 
     return true;
 }
-vk::Extent2D VulkanRenderer::getWindowExtent(const vk::SurfaceCapabilitiesKHR surfaceCapabilities) {
+vk::Extent2D VulkanGPU::getWindowExtent(const vk::SurfaceCapabilitiesKHR surfaceCapabilities) {
     if (surfaceCapabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
         return surfaceCapabilities.currentExtent;
     }
@@ -254,7 +254,7 @@ vk::Extent2D VulkanRenderer::getWindowExtent(const vk::SurfaceCapabilitiesKHR su
     };
 }
 
-bool VulkanRenderer::initialiseSwapchain() {
+bool VulkanGPU::initialiseSwapchain() {
     CORE_TRACE("Initialising Swapchain");
     const int32_t* bufferedFrames = CVarSystem::get()->getIntCVar("IBufferedFrames");
 
@@ -295,7 +295,7 @@ bool VulkanRenderer::initialiseSwapchain() {
 
     return true;
 }
-bool VulkanRenderer::initialiseSwapchainImages() {
+bool VulkanGPU::initialiseSwapchainImages() {
     CORE_TRACE("Initialising Swapchain Images");
     const vk::ResultValue<std::vector<vk::Image>> swapchainImagesResult = device.getSwapchainImagesKHR(swapchain);
 
@@ -336,7 +336,7 @@ bool VulkanRenderer::initialiseSwapchainImages() {
 /* Cleanup                                      */
 /* -------------------------------------------- */
 
-void VulkanRenderer::destroyDebugMessenger() {
+void VulkanGPU::destroyDebugMessenger() {
     // Cheeky load to make sure the function is loaded
     const auto func = reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(
             instance.getProcAddr("vkDestroyDebugUtilsMessengerEXT"));
@@ -347,7 +347,7 @@ void VulkanRenderer::destroyDebugMessenger() {
     debugMessenger = nullptr;
 }
 
-void VulkanRenderer::destroySwapchain() {
+void VulkanGPU::destroySwapchain() {
     device.destroySwapchainKHR(swapchain);
 
     for (int i = 0; i < swapchainImageCount; i++) {
@@ -362,7 +362,7 @@ void VulkanRenderer::destroySwapchain() {
 /* Utils                                        */
 /* -------------------------------------------- */
 
-bool VulkanRenderer::checkValidationLayersSupport() const {
+bool VulkanGPU::checkValidationLayersSupport() const {
     auto layerProperties = vk::enumerateInstanceLayerProperties();
     if (layerProperties.result != vk::Result::eSuccess) {
         CORE_CRITICAL("Failed to get validation layer properties");
@@ -381,7 +381,7 @@ bool VulkanRenderer::checkValidationLayersSupport() const {
 
     return !layerMissed;
 }
-VkBool32 VulkanRenderer::debugCallback(const VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+VkBool32 VulkanGPU::debugCallback(const VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
                                        const VkDebugUtilsMessageTypeFlagsEXT messageType,
                                        const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) {
     std::string type;
@@ -417,7 +417,7 @@ VkBool32 VulkanRenderer::debugCallback(const VkDebugUtilsMessageSeverityFlagBits
     return VK_FALSE;
 }
 
-std::unordered_map<uint32_t, uint32_t> VulkanRenderer::selectQueues() {
+std::unordered_map<uint32_t, uint32_t> VulkanGPU::selectQueues() {
     std::unordered_map<uint32_t, uint32_t> queues;
     std::vector<uint32_t> usedQueues;
 
@@ -439,7 +439,7 @@ std::unordered_map<uint32_t, uint32_t> VulkanRenderer::selectQueues() {
     return queues;
 }
 
-int32_t VulkanRenderer::getBestQueue(const vk::Flags<vk::QueueFlagBits> requiredFlags, std::vector<uint32_t>& usedQueues) const {
+int32_t VulkanGPU::getBestQueue(const vk::Flags<vk::QueueFlagBits> requiredFlags, std::vector<uint32_t>& usedQueues) const {
     auto queueFamilies = physicalDevice.getQueueFamilyProperties();
     std::vector<uint32_t> queueOptions;
 
@@ -461,7 +461,7 @@ int32_t VulkanRenderer::getBestQueue(const vk::Flags<vk::QueueFlagBits> required
     return selectedQueue;
 }
 
-vk::SurfaceFormatKHR VulkanRenderer::getBestSwapchainFormat() const {
+vk::SurfaceFormatKHR VulkanGPU::getBestSwapchainFormat() const {
     const auto surfaceFormats = physicalDevice.getSurfaceFormatsKHR(surface).value;
 
     for (auto surfaceFormat: surfaceFormats) {
@@ -473,7 +473,7 @@ vk::SurfaceFormatKHR VulkanRenderer::getBestSwapchainFormat() const {
 
     return surfaceFormats[0];
 }
-vk::PresentModeKHR VulkanRenderer::getIdealPresentMode() const {
+vk::PresentModeKHR VulkanGPU::getIdealPresentMode() const {
     const bool enableVsync = CVarSystem::get()->getBoolCVar("BEnableVsync");
     const auto availablePresentModes = physicalDevice.getSurfacePresentModesKHR(surface).value;
 
@@ -486,7 +486,7 @@ vk::PresentModeKHR VulkanRenderer::getIdealPresentMode() const {
     return vk::PresentModeKHR::eFifo;
 }
 
-void VulkanRenderer::addValidationLayer(const char* layer) {
+void VulkanGPU::addValidationLayer(const char* layer) {
 #ifdef _DEBUG
     validationLayers.push_back(layer);
 #endif
@@ -496,11 +496,11 @@ void VulkanRenderer::addValidationLayer(const char* layer) {
 /* Override                                     */
 /* -------------------------------------------- */
 
-int VulkanRenderer::getWindowFlags() {
+int VulkanGPU::getWindowFlags() {
     return SDL_WINDOW_VULKAN;
 }
 
-void VulkanRenderer::cleanup() {
+void VulkanGPU::cleanup() {
     destroySwapchain();
 
     vmaDestroyAllocator(allocator);

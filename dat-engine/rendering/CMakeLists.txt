@@ -7,6 +7,6 @@ elseif (${DAT_ENGINE_TARGET_PLATFORM} STREQUAL "windows")
 endif()
 
 target_sources(dat-engine PRIVATE
-        "irenderer.h" "source/irenderer.cpp"
+        "igpu.h" "source/igpu.cpp"
         "iwindow.h" "source/iwindow.cpp"
 )
