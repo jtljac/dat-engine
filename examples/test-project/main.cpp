@@ -2,7 +2,7 @@
 
 #include <dat-engine.h>
 
-#include "rendering/vulkan/vulkan-gpu.h"
+#include <gpu/vulkan/vulkan-gpu.h>
 
 using namespace DatEngine;
 

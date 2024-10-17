@@ -7,7 +7,7 @@ target_sources(dat-engine PRIVATE
 add_subdirectory(container)
 add_subdirectory(maths)
 add_subdirectory(platform)
-add_subdirectory(rendering)
+add_subdirectory(gpu)
 add_subdirectory(util)
 
 target_include_directories(dat-engine PUBLIC ./)

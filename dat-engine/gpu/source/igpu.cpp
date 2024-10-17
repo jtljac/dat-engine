@@ -1,4 +1,4 @@
-#include "rendering/igpu.h"
+#include "../igpu.h"
 
 #include <util/cvar.h>
 

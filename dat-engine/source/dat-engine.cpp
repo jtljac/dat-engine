@@ -48,7 +48,7 @@ bool Engine::init(DatGPU::igpu* renderer) {
         return false;
     }
 
-    this->renderer = renderer;
+    this->gpu = renderer;
 
     if (!renderer->initialise()) {
         CORE_ERROR("Failed to initialise renderer");

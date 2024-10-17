@@ -75,7 +75,7 @@ namespace DatEngine::DatMaths {
          * Initialise cell with a list of cells
          *
          * This will copy the data from the given list in column major order, therefore the data will move from the given
-         * array to the matrix in the following way (for a 3x3 matrix:
+         * array to the matrix in the following way (for a 3x3 matrix):
          *
          * 0, 3, 6 <br>
          * 1, 4, 7 <br>
@@ -162,6 +162,7 @@ namespace DatEngine::DatMaths {
          * <br>
          * This column will be a reference to the actual memory in the Matrix, therefore changes to the column will
          * reflect in the matrix.
+         *
          * @param pos The index of the column to get
          * @return The column at the given position
          */
@@ -175,6 +176,7 @@ namespace DatEngine::DatMaths {
          * <br>
          * This column will be a reference to the actual memory in the Matrix, therefore changes to the Matrix will
          * reflect on the column.
+         *
          * @param pos The index of the column to get
          * @return The column at the given position
          */
@@ -188,8 +190,8 @@ namespace DatEngine::DatMaths {
          * <br>
          * This operation is more expensive than getColumn() as it needs to create a new vector. Subsequently, the returned
          * row is not a reference and changes to the row will not affect the Matrix.
-         * @param pos
-         * @return
+         * @param pos The index of the row to get
+         * @return The row at the given index
          */
         rowType getRow(const size_t pos) const {
             assert(pos < height);

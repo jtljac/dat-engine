@@ -1,6 +1,6 @@
 #define VMA_IMPLEMENTATION
 #define VMA_DYNAMIC_VULKAN_FUNCTIONS 1
-#include "rendering/vulkan/vulkan-gpu.h"
+#include "../vulkan-gpu.h"
 
 #include <algorithm>
 #include <iostream>
@@ -271,7 +271,7 @@ bool VulkanGPU::initialiseSwapchain() {
     swapchainExtent = getWindowExtent(surfaceCapabilities);
     swapchainFormat = format.format;
 
-    const int32_t bufferedImages = DatMaths::clamp<uint32_t>(
+    const uint32_t bufferedImages = DatMaths::clamp<uint32_t>(
             *bufferedFrames, surfaceCapabilities.minImageCount,
             surfaceCapabilities.maxImageCount == 0 ? INT_MAX : surfaceCapabilities.maxImageCount);
 
