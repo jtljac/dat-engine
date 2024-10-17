@@ -242,40 +242,53 @@ public:
     }
 
     /**
-     * Get an integer CVar by it's name
+     * Get an integer CVar by its name
      * @param hash The name of the CVar
      * @return A pointer to the value of the CVar
      */
     int32_t* getIntCVar(StringUtils::StringHash hash) override;
     /**
-     * Set the value of an integer CVar by it's name
+     * Set the value of an integer CVar by its name
      * @param hash The name of the CVar
      * @param value The new value of the CVar
      */
     void setIntCVar(StringUtils::StringHash hash, int32_t value) override;
 
+    /**
+     * Get a boolean CVar by its name
+     * @param hash The name of the CVar
+     * @return A pointer to the value of the CVar
+     */
+    bool* getBoolCVar(StringUtils::StringHash hash) override;
+    /**
+     * Set the value of an integer CVar by its name
+     * @param hash The name of the CVar
+     * @param value The new value of the CVar
+     */
+    void setBoolCVar(StringUtils::StringHash hash, bool value) override;
+
 
     /**
-     * Get a float CVar by it's name
+     * Get a float CVar by its name
      * @param hash The name of the CVar
      * @return A pointer to the value of the CVar
      */
     double* getFloatCVar(StringUtils::StringHash hash) override;
     /**
-     * Set the value of a float CVar by it's name
+     * Set the value of a float CVar by its name
      * @param hash The name of the CVar
      * @param value The new value of the CVar
      */
     void setFloatCVar(StringUtils::StringHash hash, double value) override;
 
     /**
-     * Get a string CVar by it's name
+     * Get a string CVar by its name
      * @param hash The name of the CVar
      * @return A pointer to the value of the CVar
      */
     std::string* getStringCVar(StringUtils::StringHash hash) override;
     /**
-     * Set the value of a string CVar by it's name
+     * Set the value of a string CVar by its name
      * @param hash The name of the CVar
      * @param value The new value of the CVar
      */
@@ -432,6 +445,14 @@ int32_t* ::CVarSystemImpl::getIntCVar(const StringUtils::StringHash hash) {
 
 void ::CVarSystemImpl::setIntCVar(const StringUtils::StringHash hash, const int32_t value) {
     setCVarCurrent<int32_t>(hash, value);
+}
+
+bool* ::CVarSystemImpl::getBoolCVar(const StringUtils::StringHash hash) {
+    return getCVarCurrent<bool>(hash);
+}
+
+void ::CVarSystemImpl::setBoolCVar(const StringUtils::StringHash hash, const bool value) {
+    setCVarCurrent<bool>(hash, value);
 }
 
 double* ::CVarSystemImpl::getFloatCVar(const StringUtils::StringHash hash) {

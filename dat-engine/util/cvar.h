@@ -158,22 +158,36 @@ namespace DatEngine {
         virtual CVarParameter* createStringCVar(const char* name, const char* description, CVarCategory category, const char* initialValue, const char* value) = 0;
 
         /**
-         * Get the value of a Integer CVar by it's hash
+         * Get the value of an Integer CVar by its hash
          *
          * @param hash The hash of the CVar to get
          * @return A pointer to the value of the CVar with the given hash
          */
         virtual int32_t* getIntCVar(StringUtils::StringHash hash) = 0;
         /**
-         * Set the value of a Integer CVar
+         * Set the value of an Integer CVar
          *
-         * @param hash The has of the CVar to set
+         * @param hash The hash of the CVar to set
          * @param value The value to set the CVar to
          */
         virtual void setIntCVar(StringUtils::StringHash hash, int32_t value) = 0;
+        /**
+         * Get the value of a Boolean CVar by its hash
+         *
+         * @param hash The hash of the CVar to get
+         * @return A pointer to the value of the CVar with the given hash
+         */
+        virtual bool* getBoolCVar(StringUtils::StringHash hash) = 0;
+        /**
+         * Set the value of a Boolean CVar
+         *
+         * @param hash The hash of the CVar to set
+         * @param value The value to set the CVar to
+         */
+        virtual void setBoolCVar(StringUtils::StringHash hash, bool value) = 0;
 
         /**
-         * Get the value of a Float CVar by it's hash
+         * Get the value of a Float CVar by its hash
          *
          * @param hash The hash of the CVar to get
          * @return A pointer to the value of the CVar with the given hash
@@ -188,7 +202,7 @@ namespace DatEngine {
         virtual void setFloatCVar(StringUtils::StringHash hash, double value) = 0;
 
         /**
-         * Get the value of a String CVar by it's hash
+         * Get the value of a String CVar by its hash
          *
          * @param hash The hash of the CVar to get
          * @return A pointer to the value of the CVar with the given hash
