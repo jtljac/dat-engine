@@ -1,7 +1,3 @@
-//
-// Created by jacob on 06/07/23.
-//
-
 #include "../common-maths.h"
 using namespace DatEngine;
 

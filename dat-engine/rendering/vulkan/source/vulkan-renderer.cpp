@@ -1,7 +1,3 @@
-//
-// Created by jacob on 10/07/23.
-//
-
 #define VMA_IMPLEMENTATION
 #define VMA_DYNAMIC_VULKAN_FUNCTIONS 1
 #include "rendering/vulkan/vulkan-renderer.h"

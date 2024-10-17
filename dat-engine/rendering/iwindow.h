@@ -1,7 +1,3 @@
-//
-// Created by jacob on 10/07/23.
-//
-
 #pragma once
 
 #include <maths/vector.h>

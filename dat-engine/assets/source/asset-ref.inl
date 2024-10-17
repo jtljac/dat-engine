@@ -1,7 +1,3 @@
-//
-// Created by jacob on 18/08/23.
-//
-
 template<subClass<Asset> assetType>
 template<baseClass<Asset> otherAssetType>
 requires(exactClass<otherAssetType, assetType> || baseClass<otherAssetType, assetType> ||

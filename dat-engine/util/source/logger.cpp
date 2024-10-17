@@ -1,6 +1,3 @@
-//
-// Created by jacob on 10/07/23.
-//
 #include "util/logger.h"
 
 #include <spdlog/sinks/stdout_color_sinks.h>

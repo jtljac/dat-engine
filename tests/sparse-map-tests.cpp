@@ -1,6 +1,3 @@
-//
-// Created by jacob on 26/07/24.
-//
 #include <catch2/catch_test_macros.hpp>
 #include <iostream>
 

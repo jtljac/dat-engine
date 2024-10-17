@@ -1,7 +1,3 @@
-//
-// Created by jacob on 28/07/23.
-//
-
 #pragma once
 
 #include <maths/vector/vec-forward.h>

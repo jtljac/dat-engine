@@ -1,6 +1,3 @@
-//
-// Created by jacob on 22/07/24.
-//
 #include "../cvar.h"
 
 #include <cassert>

@@ -1,7 +1,3 @@
-//
-// Created by jacob on 05/07/23.
-//
-
 #pragma once
 
 namespace DatEngine::DatMaths::numbers {
