@@ -271,7 +271,7 @@ bool VulkanGPU::initialiseSwapchain() {
     swapchainExtent = getWindowExtent(surfaceCapabilities);
     swapchainFormat = format.format;
 
-    bool bufferedImages = DatMaths::clamp<uint32_t>(
+    const int32_t bufferedImages = DatMaths::clamp<uint32_t>(
             *bufferedFrames, surfaceCapabilities.minImageCount,
             surfaceCapabilities.maxImageCount == 0 ? INT_MAX : surfaceCapabilities.maxImageCount);
 

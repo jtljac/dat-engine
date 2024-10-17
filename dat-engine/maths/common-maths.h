@@ -187,29 +187,27 @@ namespace DatEngine::DatMaths {
 
     /**
      * Compare two values and return the smallest one
-     * @tparam lhType The type of the left hand value
-     * @tparam rhType The type of the right hand value
+     * @tparam type The type of the parameters
      * @param lh The left hand value
      * @param rh The right hand value
      * @return lh if it is smaller than rh, otherwise rh
-     */
-    template<typename lhType, typename rhType>
-    requires comparable_to<lhType, rhType>
-    bool min(lhType lh, rhType rh) {
+    */
+    template<typename type>
+    requires comparable_to<type, type>
+    type min(type lh, type rh) {
         return lh < rh ? lh : rh;
     }
 
     /**
      * Compare two values and return the bigger value
-     * @tparam lhType The type of the left hand value
-     * @tparam rhType The type of the right hand value
+     * @tparam type The type of the parameters
      * @param lh The left hand value
      * @param rh The right hand value
      * @return lh if it is bigger than rh, otherwise rh
      */
-    template<typename lhType, typename rhType>
-    requires comparable_to<lhType, rhType>
-    bool max(lhType lh, rhType rh) {
+    template<typename type>
+    requires comparable_to<type, type>
+    type max(type lh, type rh) {
         return lh > rh ? lh : rh;
     }
 
@@ -225,7 +223,7 @@ namespace DatEngine::DatMaths {
      */
     template<typename type>
     requires comparable_to<type, type>
-    bool clamp(type value, type min, type max) {
+    type clamp(type value, type min, type max) {
         return DatMaths::max(DatMaths::min(value, max), min);
     }
 }
