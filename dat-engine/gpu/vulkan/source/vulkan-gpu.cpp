@@ -9,14 +9,36 @@
 #include <vector>
 
 #include <SDL_vulkan.h>
+#include <vulkan/vulkan_to_string.hpp>
 
 #include <dat-engine.h>
 #include <maths/common-maths.h>
 #include <util/cvar.h>
 #include <util/logger.h>
 
-
 VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
+
+/**
+ * Handle simple checking and unwrapping for methods that returns a vk::ResultValueType. Whenever the vk::Result isn't
+ * vk::Result::eSuccess, it will log to critical and call @code return false@endcode
+ *
+ * This macro specifically requires that the function it is contained within returns a @code bool@endcode
+ *
+ * @param varDecl The variable declaration for the result. Can be auto, the correct type for the wrapped method, or an
+ *                existing variable.
+ * @param x The method that returns a vk::ResultValueType
+ */
+
+#define STRINGIFY2(X) #X
+#define STRINGIFY(X) STRINGIFY2(X)
+
+#define VK_CHECK(varDecl, x) \
+    const auto wrappedResult = x;\
+    if (wrappedResult.result != vk::Result::eSuccess) { \
+        CORE_CRITICAL("Vulkan error occured during \"" #x "\": {}", vk::to_string(wrappedResult.result)); \
+        return false; \
+    } \
+    varDecl = wrappedResult.value;
 
 using namespace DatEngine::DatGPU::DatVk;
 
@@ -37,7 +59,7 @@ bool VulkanGPU::initialise() {
     if (!initialiseSurface()) return false;
     if (!initialiseSwapchain()) return false;
     if (!initialiseSwapchainImages()) return false;
-    // if (!initialiseCommands()) return false;
+    if (!initialiseFrameData()) return false;
     // if (!initialiseSyncStructures()) return false;
 
     CORE_INFO("Vulkan Renderer Initialised");
@@ -258,14 +280,8 @@ bool VulkanGPU::initialiseSwapchain() {
     CORE_TRACE("Initialising Swapchain");
     const int32_t* bufferedFrames = CVarSystem::get()->getIntCVar("IBufferedFrames");
 
-    const vk::ResultValue<vk::SurfaceCapabilitiesKHR> surfaceCapabilitiesResult = physicalDevice.getSurfaceCapabilitiesKHR(surface);
+    VK_CHECK(const vk::SurfaceCapabilitiesKHR surfaceCapabilities, physicalDevice.getSurfaceCapabilitiesKHR(surface))
 
-    if (surfaceCapabilitiesResult.result != vk::Result::eSuccess) {
-        CORE_CRITICAL("Failed to get surface capabilities");
-        return false;
-    }
-
-    const vk::SurfaceCapabilitiesKHR surfaceCapabilities = surfaceCapabilitiesResult.value;
     const vk::SurfaceFormatKHR format = getBestSwapchainFormat();
 
     swapchainExtent = getWindowExtent(surfaceCapabilities);
@@ -297,36 +313,24 @@ bool VulkanGPU::initialiseSwapchain() {
 }
 bool VulkanGPU::initialiseSwapchainImages() {
     CORE_TRACE("Initialising Swapchain Images");
-    const vk::ResultValue<std::vector<vk::Image>> swapchainImagesResult = device.getSwapchainImagesKHR(swapchain);
+    VK_CHECK(const std::vector<vk::Image> swapchainImages, device.getSwapchainImagesKHR(swapchain))
 
-    if (swapchainImagesResult.result != vk::Result::eSuccess) {
-        CORE_CRITICAL("Failed to get Swapchain images");
-        return false;
-    }
-
-    swapchainImageCount = swapchainImagesResult.value.size();
+    swapchainImageCount = swapchainImages.size();
     swapchainData = new SwapchainData[swapchainImageCount];
 
     for (int i = 0; i < swapchainImageCount; i++) {
-        SwapchainData swapchainImage = swapchainData[i];
-        swapchainImage.image = swapchainImagesResult.value[i];
+        SwapchainData swapchainData& = swapchainData[i];
+        image = swapchainImages[i];
 
         vk::ImageViewCreateInfo swapchainImageViewCreateInfo =
                 vk::ImageViewCreateInfo()
-                        .setImage(swapchainImage.image)
+                        .setImage(image)
                         .setViewType(vk::ImageViewType::e2D)
                         .setFormat(swapchainFormat)
                         .setComponents({})
                         .setSubresourceRange({vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1});
 
-        vk::ResultValue<vk::ImageView> imageViewResult = device.createImageView(swapchainImageViewCreateInfo);
-
-        if (imageViewResult.result != vk::Result::eSuccess) {
-            CORE_CRITICAL("Failed to create swapchain image view");
-            return false;
-        }
-
-        swapchainImage.imageView = imageViewResult.value;
+        VK_CHECK(swapchainData[i].imageView, device.createImageView(swapchainImageViewCreateInfo))
     }
 
     return true;
