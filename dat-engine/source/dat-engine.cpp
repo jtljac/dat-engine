@@ -77,6 +77,7 @@ void Engine::startLoop() {
         // Update
 
         // Render
+        gpu->draw();
         // UI
     }
 }

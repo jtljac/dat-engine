@@ -52,10 +52,17 @@ namespace DatEngine::DatGPU::DatVk {
         /** Size of the swapchain images (Might not match user set window size) */
         vk::Extent2D swapchainExtent;
 
-        /** Number of images in the swapchain (Might not match user set buffer count */
+        /** Number of frames to buffer */
+        int bufferedFrames = 0;
+        /** Number of images in the swapchain (Might not match user set buffered frames) */
         size_t swapchainImageCount = 0;
         /** Array of swapchain images and image views */
         SwapchainData* swapchainData = nullptr;
+        /** Array of per frame data */
+        FrameData* frameData = nullptr;
+
+        /** The current frame the renderer is on */
+        int frameNumber = 0;
 
         // Validation Layers
 #ifdef _DEBUG
@@ -114,6 +121,14 @@ namespace DatEngine::DatGPU::DatVk {
          * @return @code true@endcode if successful
          */
         bool initialiseSwapchainImages();
+
+        bool initialiseFrameData();
+
+        bool initialiseFrameCommandStructure(FrameData& frameData) const;
+
+        bool initialiseFrameSyncStructure(FrameData& frameData) const;
+
+
 
         // Framedata
 
@@ -183,7 +198,7 @@ namespace DatEngine::DatGPU::DatVk {
          * @param surfaceCapabilities The capabilities of the surface
          * @return The window extent for the application window
          */
-        [[nodiscard]] static vk::Extent2D getWindowExtent(vk::SurfaceCapabilitiesKHR surfaceCapabilities);
+        [[nodiscard]] static vk::Extent2D getWindowExtent(const vk::SurfaceCapabilitiesKHR& surfaceCapabilities);
 
         /**
          * Get the best present mode available on the device/surface that conforms to the user's selected VSync options
@@ -198,9 +213,12 @@ namespace DatEngine::DatGPU::DatVk {
          */
         [[nodiscard]] vk::PresentModeKHR getIdealPresentMode() const;
 
+        [[nodiscard]] FrameData& getCurrentFrame() const;
+
     public:
         int getWindowFlags() override;
         bool initialise() override;
+        void draw() override;
         void cleanup() override;
 
         // Utils

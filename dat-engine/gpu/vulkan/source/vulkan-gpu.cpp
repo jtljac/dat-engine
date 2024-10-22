@@ -1,6 +1,7 @@
 #define VMA_IMPLEMENTATION
 #define VMA_DYNAMIC_VULKAN_FUNCTIONS 1
 #include "../vulkan-gpu.h"
+#include "../vk-shortcuts.h"
 
 #include <algorithm>
 #include <iostream>
@@ -18,27 +19,36 @@
 
 VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 
+#define STRINGIFY_(X) #X
+#define STRINGIFY(X) STRINGIFY_(X)
+
+#define CAT_(a, b) a ## b
+#define CAT(a, b) CAT_(a, b)
+
 /**
- * Handle simple checking and unwrapping for methods that returns a vk::ResultValueType. Whenever the vk::Result isn't
- * vk::Result::eSuccess, it will log to critical and call @code return false@endcode
+ * Checks the result of a vulkan method that returns a vk::ResultValueType, setting @code varDecl@endcode to the value
+ * on success and logging critical then calling @code return false@endcode for any other result.
  *
  * This macro specifically requires that the function it is contained within returns a @code bool@endcode
  *
- * @param varDecl The variable declaration for the result. Can be auto, the correct type for the wrapped method, or an
- *                existing variable.
- * @param x The method that returns a vk::ResultValueType
+ * @param varDecl The variable declaration to store the default in, this can be defining a new variable
+ *                (@code const auto surfaceVar@endcode) or storing in an existing one.
+ * @param x The vulkan method that returns a vk::ResultValueType
  */
-
-#define STRINGIFY2(X) #X
-#define STRINGIFY(X) STRINGIFY2(X)
-
 #define VK_CHECK(varDecl, x) \
-    const auto wrappedResult = x;\
-    if (wrappedResult.result != vk::Result::eSuccess) { \
-        CORE_CRITICAL("Vulkan error occured during \"" #x "\": {}", vk::to_string(wrappedResult.result)); \
+    const auto CAT(wrappedResult, __LINE__) = x;\
+    if (CAT(wrappedResult, __LINE__).result != vk::Result::eSuccess) { \
+        CORE_CRITICAL("Vulkan error occured on line \"" STRINGIFY(__LINE__) "\": {}", vk::to_string(CAT(wrappedResult, __LINE__).result)); \
         return false; \
     } \
-    varDecl = wrappedResult.value;
+    varDecl = CAT(wrappedResult, __LINE__).value;
+
+#define VK_QUICK_FAIL(x) \
+    const auto CAT(result, __LINE__) = x;\
+    if (CAT(result, __LINE__) != vk::Result::eSuccess) { \
+        CORE_CRITICAL("Vulkan error occured on line \"" STRINGIFY(__LINE__) "\": {}", vk::to_string(CAT(result, __LINE__))); \
+        abort(); \
+    }
 
 using namespace DatEngine::DatGPU::DatVk;
 
@@ -48,22 +58,76 @@ using namespace DatEngine::DatGPU::DatVk;
 
 bool VulkanGPU::initialise() {
     CORE_TRACE("Initialising Vulkan Renderer");
-    if (!initialiseInstance()) return false;
+    if (!initialiseInstance())
+        return false;
 #ifdef _DEBUG
-    if (!setupDebugMessenger()) return false;
+    if (!setupDebugMessenger())
+        return false;
 #endif
-    if (!initialisePhysicalDevice()) return false;
-    if (!initialiseDevice()) return false;
-    if (!initialiseVma()) return false;
+    if (!initialisePhysicalDevice())
+        return false;
+    if (!initialiseDevice())
+        return false;
+    if (!initialiseVma())
+        return false;
 
-    if (!initialiseSurface()) return false;
-    if (!initialiseSwapchain()) return false;
-    if (!initialiseSwapchainImages()) return false;
-    if (!initialiseFrameData()) return false;
-    // if (!initialiseSyncStructures()) return false;
+    if (!initialiseSurface())
+        return false;
+    if (!initialiseSwapchain())
+        return false;
+    if (!initialiseSwapchainImages())
+        return false;
+    if (!initialiseFrameData())
+        return false;
 
     CORE_INFO("Vulkan Renderer Initialised");
     return true;
+}
+
+void VulkanGPU::draw() {
+    auto& [commandPool, commandBuffer, renderFence, renderSemaphore, swapchainSemaphore] = getCurrentFrame();
+
+    VK_QUICK_FAIL(device.waitForFences(1, &renderFence, true, 1000000000));
+    VK_QUICK_FAIL(device.resetFences(1, &renderFence));
+
+    uint32_t swapchainImageIndex;
+    VK_QUICK_FAIL(device.acquireNextImageKHR(swapchain, 1000000000, swapchainSemaphore, nullptr, &swapchainImageIndex));
+
+    auto& [swapchainImage, swapchainImageView] = swapchainData[swapchainImageIndex];
+
+    VK_QUICK_FAIL(commandBuffer.reset());
+
+    VK_QUICK_FAIL(commandBuffer.begin(vk::CommandBufferBeginInfo(vk::CommandBufferUsageFlagBits::eOneTimeSubmit)));
+
+    Shortcuts::transitionImage(commandBuffer, swapchainImage,
+                               vk::ImageLayout::eUndefined, vk::ImageLayout::eGeneral,
+                               vk::PipelineStageFlagBits2::eTopOfPipe,vk::PipelineStageFlagBits2::eTopOfPipe,
+                               vk::AccessFlagBits2::eNone, vk::AccessFlagBits2::eMemoryWrite);
+
+    commandBuffer.clearColorImage(swapchainImage, vk::ImageLayout::eGeneral,
+                                  {0.f, 0.f, std::abs(DatMaths::sin(frameNumber / 120.f)), 0.f},
+                                  vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor,
+                                      0, vk::RemainingMipLevels,
+                                      0, vk::RemainingArrayLayers));
+
+    Shortcuts::transitionImage(commandBuffer, swapchainImage,
+                               vk::ImageLayout::eGeneral, vk::ImageLayout::ePresentSrcKHR,
+                               vk::PipelineStageFlagBits2::eTopOfPipe,vk::PipelineStageFlagBits2::eComputeShader,
+                               vk::AccessFlagBits2::eMemoryWrite, vk::AccessFlagBits2::eMemoryWrite);
+
+    VK_QUICK_FAIL(commandBuffer.end());
+
+    vk::SemaphoreSubmitInfo semaphoreWaitInfo(swapchainSemaphore, 1, vk::PipelineStageFlagBits2::eColorAttachmentOutput);
+    vk::SemaphoreSubmitInfo semaphoreSignalInfo(renderSemaphore, 1, vk::PipelineStageFlagBits2::eAllGraphics);
+
+    vk::CommandBufferSubmitInfo commandBufferSubmitInfo(commandBuffer);
+
+    vk::SubmitInfo2 submitInfo({}, 1, &semaphoreWaitInfo, 1, &commandBufferSubmitInfo, 1, &semaphoreSignalInfo);
+    VK_QUICK_FAIL(graphicsQueue.submit2(1, &submitInfo, renderFence));
+
+    VK_QUICK_FAIL(graphicsQueue.presentKHR(vk::PresentInfoKHR(1, &renderSemaphore, 1, &swapchain, &swapchainImageIndex)));
+
+    ++frameNumber;
 }
 
 bool VulkanGPU::initialiseInstance() {
@@ -93,7 +157,6 @@ bool VulkanGPU::initialiseInstance() {
         CORE_DEBUG("- {}", item);
     }
 
-
 #ifdef _DEBUG
      std::vector<const char*>& layers = this->validationLayers;
 #else
@@ -102,20 +165,11 @@ bool VulkanGPU::initialiseInstance() {
 
     const vk::InstanceCreateInfo instanceInfo({}, &applicationInfo, layers, extensions);
 
-    const vk::ResultValue<vk::Instance> instanceResult = createInstance(instanceInfo);
+    VK_CHECK(this->instance, vk::createInstance(instanceInfo));
 
-    switch (instanceResult.result) {
-        case vk::Result::eSuccess:
-            this->instance = instanceResult.value;
-            VULKAN_HPP_DEFAULT_DISPATCHER.init(instance);
-            return true;
-        case vk::Result::eErrorExtensionNotPresent:
-            CORE_CRITICAL("Failed to create vulkan instance due to required extensions not being present.");
-            return false;
-        default:
-            CORE_CRITICAL("Failed to create vulkan instance.");
-            return false;
-    }
+    vk::defaultDispatchLoaderDynamic.init(instance);
+
+    return true;
 }
 
 bool VulkanGPU::setupDebugMessenger() {
@@ -126,36 +180,28 @@ bool VulkanGPU::setupDebugMessenger() {
         return false;
     }
 
-    const auto messengerResult = instance.createDebugUtilsMessengerEXT(vk::DebugUtilsMessengerCreateInfoEXT(
+    VK_CHECK(debugMessenger, instance.createDebugUtilsMessengerEXT(vk::DebugUtilsMessengerCreateInfoEXT(
         {},
         vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo | vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning
         | vk::DebugUtilsMessageSeverityFlagBitsEXT::eError | vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose,
         vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral | vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance
         | vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation,
-        debugCallback, nullptr));
-
-    if (messengerResult.result != vk::Result::eSuccess) {
-        CORE_CRITICAL("Failed to create debug messenger.");
-        return false;
-    }
-
-    debugMessenger = messengerResult.value;
+        debugCallback, nullptr)));
     return true;
 }
 
 bool VulkanGPU::initialisePhysicalDevice() {
     CORE_TRACE("Creating VK Physical Device");
-    vk::ResultValue<std::vector<vk::PhysicalDevice>> devicesResult = instance.enumeratePhysicalDevices();
-    if (devicesResult.result != vk::Result::eSuccess) {
-        CORE_CRITICAL("Failed to get the available GPUs");
-        return false;
-    } else if (devicesResult.value.empty()) {
+
+    VK_CHECK(const std::vector<vk::PhysicalDevice> physicalDevices, instance.enumeratePhysicalDevices())
+
+    if (physicalDevices.empty()) {
         CORE_CRITICAL("Failed to find any GPUs");
         return false;
     }
 
     // TODO: Some selection process
-    this->physicalDevice = devicesResult.value[0];
+    this->physicalDevice = physicalDevices[0];
 
     return true;
 }
@@ -163,7 +209,6 @@ bool VulkanGPU::initialisePhysicalDevice() {
 bool VulkanGPU::initialiseDevice() {
     CORE_TRACE("Creating VK Logical Device");
 
-    // TODO: Figure out some queues
     std::unordered_map<uint32_t, uint32_t> queues = selectQueues();
 
     std::vector<vk::DeviceQueueCreateInfo> queueCreateInfos;
@@ -183,7 +228,6 @@ bool VulkanGPU::initialiseDevice() {
     }
 #endif
 
-    // TODO: Make Configurable
     std::vector deviceExtensions{vk::KHRSwapchainExtensionName};
 
     vk::PhysicalDeviceShaderDrawParametersFeatures shaderDrawParameters(true);
@@ -196,22 +240,7 @@ bool VulkanGPU::initialiseDevice() {
 
     vk::DeviceCreateInfo deviceInfo({}, queueCreateInfos, nullptr, deviceExtensions, nullptr, &features3);
 
-    vk::ResultValue<vk::Device> deviceResult = physicalDevice.createDevice(deviceInfo);
-
-    switch (deviceResult.result) {
-        case vk::Result::eSuccess:
-            this->device = deviceResult.value;
-            break;
-        case vk::Result::eErrorExtensionNotPresent:
-            CORE_CRITICAL("Failed to setup device due to required extensions not being present.");
-            return false;
-        case vk::Result::eErrorFeatureNotPresent:
-            CORE_CRITICAL("Failed to setup device due to required features not being present.");
-            return false;
-        default:
-            CORE_CRITICAL("Failed to setup device");
-            return false;
-    }
+    VK_CHECK(this->device, physicalDevice.createDevice(deviceInfo));
 
     // Get queues
     if (!unifiedTransferQueue)
@@ -241,14 +270,7 @@ bool VulkanGPU::initialiseVma() {
     //                                                              .setInstance(instance)
     //                                                              .setVulkanApiVersion(vk::ApiVersion13);
     //
-    // const vk::ResultValue<vma::Allocator> allocatorResult = createAllocator(allocatorCreateInfo);
-    //
-    // if (allocatorResult.result != vk::Result::eSuccess) {
-    //     CORE_CRITICAL("Failed to setup Vulkan Memory Allocator");
-    //     return false;
-    // }
-    //
-    // allocator = allocatorResult.value;
+    // VK_CHECK(allocator, createAllocator(allocatorCreateInfo));
 
     const VmaAllocatorCreateInfo allocatorInfo{.physicalDevice = physicalDevice,
                                               .device = device,
@@ -262,7 +284,7 @@ bool VulkanGPU::initialiseVma() {
 
     return true;
 }
-vk::Extent2D VulkanGPU::getWindowExtent(const vk::SurfaceCapabilitiesKHR surfaceCapabilities) {
+vk::Extent2D VulkanGPU::getWindowExtent(const vk::SurfaceCapabilitiesKHR& surfaceCapabilities) {
     if (surfaceCapabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
         return surfaceCapabilities.currentExtent;
     }
@@ -278,7 +300,7 @@ vk::Extent2D VulkanGPU::getWindowExtent(const vk::SurfaceCapabilitiesKHR surface
 
 bool VulkanGPU::initialiseSwapchain() {
     CORE_TRACE("Initialising Swapchain");
-    const int32_t* bufferedFrames = CVarSystem::get()->getIntCVar("IBufferedFrames");
+    bufferedFrames = *CVarSystem::get()->getIntCVar("IBufferedFrames");
 
     VK_CHECK(const vk::SurfaceCapabilitiesKHR surfaceCapabilities, physicalDevice.getSurfaceCapabilitiesKHR(surface))
 
@@ -288,7 +310,7 @@ bool VulkanGPU::initialiseSwapchain() {
     swapchainFormat = format.format;
 
     const uint32_t bufferedImages = DatMaths::clamp<uint32_t>(
-            *bufferedFrames, surfaceCapabilities.minImageCount,
+            bufferedFrames, surfaceCapabilities.minImageCount,
             surfaceCapabilities.maxImageCount == 0 ? INT_MAX : surfaceCapabilities.maxImageCount);
 
     const vk::SwapchainCreateInfoKHR swapchainInfo = vk::SwapchainCreateInfoKHR()
@@ -300,14 +322,8 @@ bool VulkanGPU::initialiseSwapchain() {
             .setImageArrayLayers(1)
             .setImageUsage(vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst)
             .setPresentMode(getIdealPresentMode());
-    const vk::ResultValue<vk::SwapchainKHR> swapchainResult = device.createSwapchainKHR(swapchainInfo);
 
-    if (swapchainResult.result != vk::Result::eSuccess) {
-        CORE_CRITICAL("Failed to setup Swapchain");
-        return false;
-    }
-
-    swapchain = swapchainResult.value;
+    VK_CHECK(swapchain, device.createSwapchainKHR(swapchainInfo));
 
     return true;
 }
@@ -319,7 +335,8 @@ bool VulkanGPU::initialiseSwapchainImages() {
     swapchainData = new SwapchainData[swapchainImageCount];
 
     for (int i = 0; i < swapchainImageCount; i++) {
-        SwapchainData swapchainData& = swapchainData[i];
+        auto& [image, imageView] = swapchainData[i];
+
         image = swapchainImages[i];
 
         vk::ImageViewCreateInfo swapchainImageViewCreateInfo =
@@ -330,8 +347,42 @@ bool VulkanGPU::initialiseSwapchainImages() {
                         .setComponents({})
                         .setSubresourceRange({vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1});
 
-        VK_CHECK(swapchainData[i].imageView, device.createImageView(swapchainImageViewCreateInfo))
+        VK_CHECK(imageView, device.createImageView(swapchainImageViewCreateInfo))
     }
+
+    return true;
+}
+
+bool VulkanGPU::initialiseFrameData() {
+    CORE_TRACE("Initialising Frame Data");
+
+    frameData = new FrameData[bufferedFrames];
+    for (int i = 0; i < bufferedFrames; i++) {
+        if (!initialiseFrameCommandStructure(frameData[i])) return false;
+        if (!initialiseFrameSyncStructure(frameData[i])) return false;
+    }
+
+    return true;
+}
+
+bool VulkanGPU::initialiseFrameCommandStructure(FrameData& frameData) const {
+    const vk::CommandPoolCreateInfo commandPoolCreateInfo(vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
+                                                          graphicsQueueIndex);
+    VK_CHECK(frameData.commandPool, device.createCommandPool(commandPoolCreateInfo));
+
+    const vk::CommandBufferAllocateInfo commandAllocCreateInfo(frameData.commandPool, vk::CommandBufferLevel::ePrimary,
+                                                               1);
+    VK_CHECK(const std::vector<vk::CommandBuffer> bufferList, device.allocateCommandBuffers(commandAllocCreateInfo));
+    frameData.commandBuffer = bufferList[0];
+
+    return true;
+}
+
+bool VulkanGPU::initialiseFrameSyncStructure(FrameData& frameData) const {
+    VK_CHECK(frameData.renderFence, device.createFence(vk::FenceCreateInfo(vk::FenceCreateFlagBits::eSignaled)));
+
+    VK_CHECK(frameData.renderSemaphore, device.createSemaphore({}));
+    VK_CHECK(frameData.swapchainSemaphore, device.createSemaphore({}));
 
     return true;
 }
@@ -357,27 +408,34 @@ void VulkanGPU::destroySwapchain() {
     for (int i = 0; i < swapchainImageCount; i++) {
         device.destroyImageView(swapchainData[i].imageView);
     }
-
     delete[] swapchainData;
+
+    for (int i = 0; i < bufferedFrames; i++) {
+        auto& [commandPool, _, renderFence, renderSemaphore, swapchainSemaphore] = frameData[i];
+        device.destroyCommandPool(commandPool);
+
+        device.destroySemaphore(renderSemaphore);
+        device.destroySemaphore(swapchainSemaphore);
+        device.destroyFence(renderFence);
+    }
+    delete[] frameData;
+
     swapchainData = nullptr;
     swapchainImageCount = 0;
 }
+
 /* -------------------------------------------- */
 /* Utils                                        */
 /* -------------------------------------------- */
 
 bool VulkanGPU::checkValidationLayersSupport() const {
-    auto layerProperties = vk::enumerateInstanceLayerProperties();
-    if (layerProperties.result != vk::Result::eSuccess) {
-        CORE_CRITICAL("Failed to get validation layer properties");
-        return false;
-    }
+    VK_CHECK(std::vector<vk::LayerProperties> layerProperties, vk::enumerateInstanceLayerProperties())
 
     bool layerMissed = false;
     for (auto validationLayer: validationLayers) {
-        if (std::ranges::find_if(layerProperties.value, [&validationLayer](const vk::LayerProperties& layer) {
+        if (std::ranges::find_if(layerProperties, [&validationLayer](const vk::LayerProperties& layer) {
             return strcmp(layer.layerName, validationLayer);
-        }) == layerProperties.value.end()) {
+        }) == layerProperties.end()) {
             CORE_CRITICAL("Failed to find validation layer: {}", validationLayer);
             layerMissed = true;
         }
@@ -481,13 +539,18 @@ vk::PresentModeKHR VulkanGPU::getIdealPresentMode() const {
     const bool enableVsync = CVarSystem::get()->getBoolCVar("BEnableVsync");
     const auto availablePresentModes = physicalDevice.getSurfacePresentModesKHR(surface).value;
 
-    for (const auto presentMode : availablePresentModes) {
-        if (enableVsync
-            ? presentMode == vk::PresentModeKHR::eFifoRelaxed
-            : presentMode == vk::PresentModeKHR::eImmediate) return presentMode;
+    for (const auto presentMode: availablePresentModes) {
+        if (enableVsync ? presentMode == vk::PresentModeKHR::eFifoRelaxed
+                        : presentMode == vk::PresentModeKHR::eImmediate)
+            return presentMode;
     }
 
     return vk::PresentModeKHR::eFifo;
+}
+
+FrameData& VulkanGPU::getCurrentFrame() const {
+
+    return frameData[frameNumber % bufferedFrames];
 }
 
 void VulkanGPU::addValidationLayer(const char* layer) {
@@ -507,11 +570,15 @@ int VulkanGPU::getWindowFlags() {
 void VulkanGPU::cleanup() {
     destroySwapchain();
 
+    instance.destroySurfaceKHR(surface);
+
     vmaDestroyAllocator(allocator);
 
     device.destroy();
+
 #ifdef _DEBUG
     destroyDebugMessenger();
 #endif
+
     instance.destroy();
 }
