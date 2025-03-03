@@ -29,10 +29,10 @@ struct TypeInfoEqualTo {
 };
 
 class AssetManager {
-    /** Cache for assets already in use */
+    /** Cache for engine-assets already in use */
     std::unordered_map<DVFS::DatPath, AssetRef<Asset>> assetCache;
 
-    /** Factories for loading assets from the disk */
+    /** Factories for loading engine-assets from the disk */
     std::unordered_map<TypeInfoRef, AssetFactory*, TypeInfoHasher, TypeInfoEqualTo> assetFactories;
 
     template<subClass<Asset> assetType>

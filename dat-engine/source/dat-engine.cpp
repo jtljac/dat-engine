@@ -1,6 +1,6 @@
 #include <dat-engine.h>
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include "util/cvar.h"
 #include "util/logger.h"
@@ -12,10 +12,17 @@ CVarInt windowHeightCVar("IWindowHeight", "The height of the game window", CVarC
 CVarEnum windowModeCVar("EWindowMode", "How to display the game window", CVarCategory::Graphics,
                         DatGPU::WindowMode::Windowed, CVarFlags::Persistent);
 
+Engine* Engine::instance = nullptr;
+
+bool Engine::preInit() {
+    DatLog::init();
+
+    return true;
+}
 
 bool Engine::init(DatGPU::igpu* renderer) {
-    DatLog::init();
-    if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
+    instance = new Engine;
+    if (!SDL_Init(SDL_INIT_EVENTS | SDL_INIT_VIDEO)) {
         CORE_CRITICAL("Failed to initialize SDL - %s", SDL_GetError());
         return false;
     }
@@ -34,21 +41,19 @@ bool Engine::init(DatGPU::igpu* renderer) {
         default:;
     }
 
-    this->window = SDL_CreateWindow(
+    instance->window = SDL_CreateWindow(
         "Dat Engine",
-        SDL_WINDOWPOS_UNDEFINED,
-        SDL_WINDOWPOS_UNDEFINED,
         windowWidthCVar.get(),
         windowHeightCVar.get(),
         windowFlags
     );
 
-    if (this->window == nullptr) {
+    if (instance->window == nullptr) {
         CORE_CRITICAL("Failed to create window - %s", SDL_GetError());
         return false;
     }
 
-    this->gpu = renderer;
+    instance->gpu = renderer;
 
     if (!renderer->initialise()) {
         CORE_ERROR("Failed to initialise renderer");
@@ -62,7 +67,7 @@ bool Engine::init(DatGPU::igpu* renderer) {
 
 void Engine::startLoop() {
 
-    uint64_t lastTime = SDL_GetTicks64();
+    uint64_t lastTime = SDL_GetTicks();
     while (!shouldClose) {
         uint64_t now = SDL_GetTicks();
         float deltaTime = ((float) (now - lastTime)) / 1000;
@@ -71,7 +76,15 @@ void Engine::startLoop() {
         //   Handle SDL events
         SDL_Event event;
         while (SDL_PollEvent(&event) != 0) {
-            switch (event.type) {}
+            switch (event.type) {
+                case SDL_EVENT_QUIT:
+                    shouldClose = true;
+                    break;
+                case SDL_EVENT_KEY_DOWN:
+                    if (event.key.scancode == SDL_SCANCODE_ESCAPE) {
+                        shouldClose = true;
+                    }
+            }
         }
 
         // Update
@@ -79,7 +92,14 @@ void Engine::startLoop() {
         // Render
         gpu->draw();
         // UI
+
+        lastTime = now;
     }
+}
+
+void Engine::cleanup() {
+    delete instance;
+    instance = nullptr;
 }
 
 SDL_Window* Engine::getWindow() const {

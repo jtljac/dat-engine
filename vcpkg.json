@@ -1,27 +1,47 @@
 {
-  "name" : "dat-engine",
-  "version-string" : "1.0.0",
-  "builtin-baseline" : "6062c8fe02d38b10d5291411bc235ae4d02cfe6c",
-  "dependencies" : [ {
-    "name" : "spdlog",
-    "version>=" : "1.14.1"
-  }, {
-    "name" : "vulkan-memory-allocator-hpp",
-    "version>=" : "3.1.0"
-  }, {
-    "name" : "catch2",
-    "version>=" : "3.6.0"
-  }, {
-    "name" : "llfio",
-    "version>=" : "2023-11-06"
-  }, {
-    "name" : "fmt",
-    "version>=" : "10.2.1#2"
-  }, {
-    "name" : "sdl2",
-    "version>=" : "2.30.7",
-    "features": [
-      "vulkan"
-    ]
-  } ]
+  "name": "dat-engine",
+  "version-string": "1.0.0",
+  "builtin-baseline": "b7a701cb475805c27e29ddf635a3b16c37ba51fb",
+  "dependencies": [
+    {
+      "name": "spdlog",
+      "version>=": "1.14.1"
+    },
+    {
+      "name": "vulkan-memory-allocator-hpp",
+      "version>=": "3.1.0"
+    },
+    {
+      "name": "catch2",
+      "version>=": "3.6.0"
+    },
+    {
+      "name": "cargs",
+      "version>=": "1.2.0#0"
+    },
+    {
+      "name": "llfio",
+      "version>=": "2023-11-06"
+    },
+    {
+      "name": "fmt",
+      "version>=": "10.2.1#2"
+    },
+    {
+      "name": "bxzstr",
+      "version>=": "1.2.2"
+    },
+    {
+      "name": "assimp",
+      "version>=": "5.4.3"
+    },
+    {
+      "name": "glslang",
+      "version>=": "15.1.0"
+    },
+    {
+      "name": "sdl3",
+      "version>=": "3.2.4"
+    }
+  ]
 }

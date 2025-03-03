@@ -10,6 +10,7 @@
 #include <util/logger.h>
 
 #include "frame-data.h"
+#include "vk-types.h"
 
 namespace DatEngine::DatGPU::DatVk {
     class VulkanGPU : public igpu {
@@ -61,6 +62,10 @@ namespace DatEngine::DatGPU::DatVk {
         /** Array of per frame data */
         FrameData* frameData = nullptr;
 
+        // G-Buffers
+        AllocatedImage drawImage;
+        vk::Extent2D drawImageExtent = {};
+
         /** The current frame the renderer is on */
         int frameNumber = 0;
 
@@ -99,16 +104,16 @@ namespace DatEngine::DatGPU::DatVk {
         bool initialiseDevice();
 
         /**
-         * Set up the surface used for rendering to
-         * @return @code true@endcode if successful
-         */
-        bool initialiseSurface();
-
-        /**
          * Set up Vulkan Memory Manager
          * @return @code true@endcode if successful
          */
         bool initialiseVma();
+
+        /**
+         * Set up the surface used for rendering to
+         * @return @code true@endcode if successful
+         */
+        bool initialiseSurface();
 
         /**
          * Initialise the swap-chain
@@ -122,15 +127,29 @@ namespace DatEngine::DatGPU::DatVk {
          */
         bool initialiseSwapchainImages();
 
+        /**
+         * Initialise the frame data array
+         * @return @code true@endcode if successful
+         */
         bool initialiseFrameData();
-
+        /**
+         * Initialise the command structures of the given frame data
+         * @param frameData The frame data to populate
+         * @return @code true@endcode if successful
+         */
         bool initialiseFrameCommandStructure(FrameData& frameData) const;
 
+        /**
+         * Initialise the sync structures of the given frame data
+         * @param frameData The frame data to populate
+         * @return @code true@endcode if successful
+         */
         bool initialiseFrameSyncStructure(FrameData& frameData) const;
 
+        bool initialiseGBuffers();
 
-
-        // Framedata
+        // Draw
+        void drawBackground(vk::CommandBuffer cmd);
 
         // Cleanup
         /**
@@ -142,6 +161,8 @@ namespace DatEngine::DatGPU::DatVk {
          * Destroy the swapchain and it's images
          */
         void destroySwapchain();
+
+        void destroyGpuMemory();
 
         // Utils
         /**
