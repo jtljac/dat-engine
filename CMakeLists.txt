@@ -54,7 +54,6 @@ endif()
 
 add_subdirectory(first-party)
 add_subdirectory(third-party)
-add_subdirectory(tools)
 add_subdirectory(dat-engine)
 
 # Examples
