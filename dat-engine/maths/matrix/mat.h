@@ -16,10 +16,14 @@ namespace DatEngine::DatMaths {
      */
     template<int width, int height, numeric componentType>
     class Matrix {
-        using matType = Matrix<width, height, componentType>;
+        /** The type of Matrix made by transposing this one*/
         using transposeType = Matrix<height, width, componentType>;
+        /** The type of the Matrix column */
         using columnType = Vector<height, componentType>;
+        /** The type of the matrix row */
         using rowType = Vector<width, componentType>;
+
+        /** The columns of the matrix */
         columnType cells[width];
 
     public:
@@ -64,7 +68,6 @@ namespace DatEngine::DatMaths {
             std::array<componentType, width * height> elements = std::array<componentType, width * height>({{args...}});
 
             for (int i = 0; i < width; ++i) {
-
                 for (int j = 0; j < height; ++j) {
                     cells[i][j] = elements[i * width + j];
                 }
@@ -118,18 +121,20 @@ namespace DatEngine::DatMaths {
          *
          * @return A 1x1 identity matrix
          */
-        static matType identity() requires (width == height) {
+        static Matrix identity()
+            requires(width == height)
+        {
             if constexpr (width == 1) {
-                return matType(static_cast<componentType>(1));
+                return Matrix(static_cast<componentType>(1));
             } else if constexpr (width == 2) {
-                return matType(static_cast<componentType>(1), static_cast<componentType>(0),
+                return Matrix(static_cast<componentType>(1), static_cast<componentType>(0),
                                static_cast<componentType>(0), static_cast<componentType>(1));
             } else if constexpr (width == 3) {
-                return matType(static_cast<componentType>(1), static_cast<componentType>(0), static_cast<componentType>(0),
+                return Matrix(static_cast<componentType>(1), static_cast<componentType>(0), static_cast<componentType>(0),
                                static_cast<componentType>(0), static_cast<componentType>(1), static_cast<componentType>(0),
                                static_cast<componentType>(0), static_cast<componentType>(0), static_cast<componentType>(1));
             } else if constexpr (width == 4) {
-                return matType(static_cast<componentType>(1), static_cast<componentType>(0), static_cast<componentType>(0), static_cast<componentType>(0),
+                return Matrix(static_cast<componentType>(1), static_cast<componentType>(0), static_cast<componentType>(0), static_cast<componentType>(0),
                                static_cast<componentType>(0), static_cast<componentType>(1), static_cast<componentType>(0), static_cast<componentType>(0),
                                static_cast<componentType>(0), static_cast<componentType>(0), static_cast<componentType>(1), static_cast<componentType>(0),
                                static_cast<componentType>(0), static_cast<componentType>(0), static_cast<componentType>(0), static_cast<componentType>(1));
@@ -143,17 +148,17 @@ namespace DatEngine::DatMaths {
                     }
                 }
 
-                return matType(init);
+                return Matrix(init);
             }
         }
 
         // Assignment
         // Getter
-        inline columnType& operator[](const size_t pos) {
+        columnType& operator[](const size_t pos) {
             return getColumn(pos);
         }
 
-        inline columnType& operator[](const size_t pos) const {
+        columnType& operator[](const size_t pos) const {
             return getColumn(pos);
         }
 

@@ -27,40 +27,40 @@ namespace DatEngine::DatMaths {
 
     // Sin
     template<floating_point type>
-    inline type sin(type value) {
+    type sin(type value) {
         return std::sin(value);
     }
 
     template<floating_point type>
-    inline type asin(type value) {
+    type asin(type value) {
         return std::asin(value);
     }
 
     // Cos
     template<floating_point type>
-    inline type cos(type value) {
+    type cos(type value) {
         return std::cos(value);
     }
 
     template<floating_point type>
-    inline type acos(type value) {
+    type acos(type value) {
         return std::acos(value);
     }
 
     // Tan
 
     template<floating_point type>
-    inline type tan(type value) {
+    type tan(type value) {
         return std::tan(value);
     }
 
     template<floating_point type>
-    inline type atan(type value) {
+    type atan(type value) {
         return std::atan(value);
     }
 
     template<floating_point type>
-    inline type atan2(type x, type y) {
+    type atan2(type x, type y) {
         return std::atan2(x, y);
     }
 

@@ -11,7 +11,7 @@
 
 namespace DatEngine {
     /**
-     * A struct representing a N component vector
+     * A struct representing an N component vector
      * @tparam size The number of components in the vector
      * @tparam componentType The type of the components of the vector
      */
