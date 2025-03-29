@@ -2,7 +2,6 @@
 #define VMA_DYNAMIC_VULKAN_FUNCTIONS 1
 #include "../vulkan-gpu.h"
 #include "../vk-shortcuts.h"
-#include <vulkan/vulkan.hpp>
 
 #include <algorithm>
 #include <iostream>
@@ -11,7 +10,9 @@
 #include <vector>
 
 #include <SDL3/SDL_vulkan.h>
+#include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_to_string.hpp>
+#include <vk_mem_alloc.h>
 
 #include <dat-engine.h>
 #include <maths/common-maths.h>
@@ -19,37 +20,6 @@
 #include <util/logger.h>
 
 VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
-
-#define STRINGIFY_(X) #X
-#define STRINGIFY(X) STRINGIFY_(X)
-
-#define CAT_(a, b) a ## b
-#define CAT(a, b) CAT_(a, b)
-
-/**
- * Checks the result of a vulkan method that returns a vk::ResultValueType, setting @code varDecl@endcode to the value
- * on success and logging critical then calling @code return false@endcode for any other result.
- *
- * This macro specifically requires that the function it is contained within returns a @code bool@endcode
- *
- * @param varDecl The variable declaration to store the default in, this can be defining a new variable
- *                (@code const auto surfaceVar@endcode) or storing in an existing one.
- * @param x The vulkan method that returns a vk::ResultValueType
- */
-#define VK_CHECK(varDecl, x) \
-    const auto CAT(wrappedResult, __LINE__) = x;\
-    if (CAT(wrappedResult, __LINE__).result != vk::Result::eSuccess) { \
-        CORE_CRITICAL("Vulkan error occured on line \"" STRINGIFY(__LINE__) "\": {}", vk::to_string(CAT(wrappedResult, __LINE__).result)); \
-        return false; \
-    } \
-    varDecl = CAT(wrappedResult, __LINE__).value;
-
-#define VK_QUICK_FAIL(x) \
-    const auto CAT(result, __LINE__) = x;\
-    if (CAT(result, __LINE__) != vk::Result::eSuccess) { \
-        CORE_CRITICAL("Vulkan error occured on line \"" STRINGIFY(__LINE__) "\": {}", vk::to_string(CAT(result, __LINE__))); \
-        abort(); \
-    }
 
 using namespace DatEngine::DatGPU::DatVk;
 
@@ -280,21 +250,11 @@ bool VulkanGPU::initialiseDevice() {
 
 bool VulkanGPU::initialiseVma() {
     CORE_TRACE("Initialising VMA");
-    // const vma::AllocatorCreateInfo allocatorCreateInfo = vma::AllocatorCreateInfo({}, physicalDevice, device)
-    //                                                              .setInstance(instance)
-    //                                                              .setVulkanApiVersion(vk::ApiVersion13);
-    //
-    // VK_CHECK(allocator, createAllocator(allocatorCreateInfo));
+    const vma::AllocatorCreateInfo allocatorCreateInfo = vma::AllocatorCreateInfo({}, physicalDevice, device)
+                                                                 .setInstance(instance)
+                                                                 .setVulkanApiVersion(vk::ApiVersion13);
 
-    const VmaAllocatorCreateInfo allocatorInfo{.physicalDevice = physicalDevice,
-                                              .device = device,
-                                              .instance = instance,
-                                              .vulkanApiVersion = vk::ApiVersion13};
-
-    if (vmaCreateAllocator(&allocatorInfo, &this->allocator) != VK_SUCCESS) {
-        CORE_CRITICAL("Failed to create VMA allocator.");
-        return false;
-    }
+    VK_CHECK(allocator, createAllocator(allocatorCreateInfo));
 
     return true;
 }
@@ -407,23 +367,23 @@ bool VulkanGPU::initialiseGBuffers() {
     drawImage.format = vk::Format::eR16G16B16A16Sfloat;
     drawImage.extent = vk::Extent3D{drawImageExtent.width, drawImageExtent.height, 1};
 
-    const VkImageCreateInfo drawImageCreateInfo = Shortcuts::getImageCreateInfo(
+    const vk::ImageCreateInfo drawImageCreateInfo = Shortcuts::getImageCreateInfo(
             drawImage.format,
             vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst
                     | vk::ImageUsageFlagBits::eStorage | vk::ImageUsageFlagBits::eColorAttachment,
             drawImage.extent
     );
 
-    const VmaAllocationCreateInfo vmaAllocationCreateInfo {
+    vma::AllocationCreateInfo vmaAllocationCreateInfo{
         {},
-        VMA_MEMORY_USAGE_GPU_ONLY,
-        (VkMemoryPropertyFlags) vk::MemoryPropertyFlags(vk::MemoryPropertyFlagBits::eDeviceLocal)
+        vma::MemoryUsage::eGpuOnly,
+        vk::MemoryPropertyFlagBits::eDeviceLocal
     };
+    std::pair<vk::Image, vma::Allocation> result;
+    VK_CHECK(result, allocator.createImage(drawImageCreateInfo, vmaAllocationCreateInfo));
 
-    VkImage image{};
-
-    vmaCreateImage(allocator, &drawImageCreateInfo, &vmaAllocationCreateInfo, &image, &drawImage.allocation, nullptr);
-    drawImage.image = image;
+    drawImage.image = result.first;
+    drawImage.allocation = result.second;
 
     VK_CHECK(drawImage.view, device.createImageView(Shortcuts::getImageViewCreateInfo(
         drawImage.format,
@@ -473,7 +433,9 @@ void VulkanGPU::destroySwapchain() {
     swapchainImageCount = 0;
 }
 
-void VulkanGPU::destroyGpuMemory() {}
+void VulkanGPU::destroyGpuMemory() {
+
+}
 
 /* -------------------------------------------- */
 /* Utils                                        */
@@ -645,7 +607,7 @@ void VulkanGPU::cleanup() {
 
     instance.destroySurfaceKHR(surface);
 
-    vmaDestroyAllocator(allocator);
+    allocator.destroy();
 
     device.destroy();
 

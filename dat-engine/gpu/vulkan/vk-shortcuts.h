@@ -1,6 +1,42 @@
 #pragma once
 
 #include <vulkan/vulkan.hpp>
+#include <util/macros.h>
+
+/**
+ * Checks the result of a vulkan method that returns a vk::ResultValueType, setting @code varDecl@endcode to the value
+ * on success and logging critical then calling @code return false@endcode for any other result.
+ *
+ * This macro specifically requires that the function it is contained within returns a @code bool@endcode
+ *
+ * @param varDecl The variable declaration to store the default in, this can be defining a new variable
+ *                (@code const auto surfaceVar@endcode) or storing in an existing one.
+ * @param x The vulkan method that returns a vk::ResultValueType
+ */
+#define VK_CHECK(varDecl, x) \
+const auto CAT(wrappedResult, __LINE__) = x;\
+if (CAT(wrappedResult, __LINE__).result != vk::Result::eSuccess) { \
+CORE_CRITICAL("Vulkan error occured on line \"" STRINGIFY(__LINE__) "\": {}", vk::to_string(CAT(wrappedResult, __LINE__).result)); \
+return false; \
+} \
+varDecl = CAT(wrappedResult, __LINE__).value;
+
+/**
+ * Checks the result of a vulkan method that returns a vk::ResultValueType, setting @code varDecl@endcode to the value
+ * on success and quitting the program on fail
+ *
+ * This macro specifically requires that the function it is contained within returns a @code bool@endcode
+ *
+ * @param varDecl The variable declaration to store the default in, this can be defining a new variable
+ *                (@code const auto surfaceVar@endcode) or storing in an existing one.
+ * @param x The vulkan method that returns a vk::ResultValueType
+ */
+#define VK_QUICK_FAIL(x) \
+const auto CAT(result, __LINE__) = x;\
+if (CAT(result, __LINE__) != vk::Result::eSuccess) { \
+CORE_CRITICAL("Vulkan error occured on line \"" STRINGIFY(__LINE__) "\": {}", vk::to_string(CAT(result, __LINE__))); \
+abort(); \
+}
 
 namespace DatEngine::DatGPU::DatVk::Shortcuts {
     /* -------------------------------------------- */
@@ -75,4 +111,15 @@ namespace DatEngine::DatGPU::DatVk::Shortcuts {
             vk::ImageLayout dstLayout = vk::ImageLayout::eTransferDstOptimal
     );
 
+    struct DescriptorLayoutBuilder {
+        std::vector<vk::DescriptorSetLayoutBinding> bindings;
+
+        void addBinding(uint32_t binding, vk::DescriptorType type);
+        void clear();
+
+        vk::DescriptorSetLayout build(vk::Device device,
+              vk::ShaderStageFlagBits stage,
+              const void* pNext = nullptr,
+              vk::DescriptorSetLayoutCreateFlagBits flags = static_cast<vk::DescriptorSetLayoutCreateFlagBits>(0));
+    };
 } // namespace DatEngine::DatGPU::DatVk::Shortcuts

@@ -49,7 +49,7 @@ bool Engine::init(DatGPU::igpu* renderer) {
     );
 
     if (instance->window == nullptr) {
-        CORE_CRITICAL("Failed to create window - %s", SDL_GetError());
+        CORE_CRITICAL("Failed to create window - {}", SDL_GetError());
         return false;
     }
 

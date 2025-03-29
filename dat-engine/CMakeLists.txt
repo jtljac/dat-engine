@@ -13,8 +13,8 @@ add_subdirectory(util)
 target_include_directories(dat-engine PUBLIC ./)
 target_include_directories(dat-engine PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
-#add_custom_target(assetProcessor
-#        COMMAND asset-processor "${CMAKE_CURRENT_LIST_DIR}/Assets" "${projectAssetDir}" "${assetDest}" "${CMAKE_CURRENT_LIST_DIR}/ShaderLibrary"
-#        COMMENT "Running Asset Processor"
-#        )
-#add_dependencies(dat-engine assetProcessor)
+add_custom_target(asset-processor
+        COMMAND dat-asset-processor-application -i "${CMAKE_CURRENT_LIST_DIR}/engine-assets" -i "${projectAssetDir}" "${assetDest}" #[["${CMAKE_CURRENT_LIST_DIR}/ShaderLibrary"]]
+        COMMENT "Running Asset Processor"
+        )
+add_dependencies(dat-engine asset-processor)

@@ -1,5 +1,9 @@
 #include "../vk-shortcuts.h"
 
+#include <util/logger.h>
+#include <vulkan/vulkan_to_string.hpp>
+#include <vk_mem_alloc.h>
+
 vk::ImageCreateInfo DatEngine::DatGPU::DatVk::Shortcuts::getImageCreateInfo(
         const vk::Format format,
         const vk::ImageUsageFlags usageFlags,
@@ -93,3 +97,30 @@ void DatEngine::DatGPU::DatVk::Shortcuts::copyImageToImage(
 
     cmd.blitImage2(blitInfo);
 }
+
+/* -------------------------------------------- */
+/* DescriptorLayoutBuilder                      */
+/* -------------------------------------------- */
+
+void DatEngine::DatGPU::DatVk::Shortcuts::DescriptorLayoutBuilder::addBinding(
+        uint32_t binding, vk::DescriptorType type
+) {
+    bindings.push_back({binding, type, 1});
+}
+
+void DatEngine::DatGPU::DatVk::Shortcuts::DescriptorLayoutBuilder::clear() { bindings.clear(); }
+
+vk::DescriptorSetLayout DatEngine::DatGPU::DatVk::Shortcuts::DescriptorLayoutBuilder::build(
+        const vk::Device device, const vk::ShaderStageFlagBits stage, const void* pNext, const vk::DescriptorSetLayoutCreateFlagBits flags) {
+    for (auto& binding : bindings) {
+        binding.stageFlags |= stage;
+    }
+
+    return device.createDescriptorSetLayout({
+        flags,
+        bindings,
+        pNext
+    });
+}
+
+

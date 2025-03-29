@@ -5,7 +5,7 @@
 #define VULKAN_HPP_NO_EXCEPTIONS
 #define VULKAN_HPP_DISPATCH_LOADER_DYNAMIC 1
 #include <vulkan/vulkan.hpp>
-#include <vk_mem_alloc.h>
+#include <vulkan-memory-allocator-hpp/vk_mem_alloc.hpp>
 
 #include <util/logger.h>
 
@@ -39,7 +39,7 @@ namespace DatEngine::DatGPU::DatVk {
 
         // Memory Management
         /** Handle for vulkan memory allocator */
-        VmaAllocator allocator = VK_NULL_HANDLE;
+        vma::Allocator allocator = VK_NULL_HANDLE;
 
         // Surface
         /** Handle to Surface used for rendering */

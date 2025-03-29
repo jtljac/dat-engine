@@ -58,7 +58,7 @@ namespace DatEngine {
          */
         static CVarSystem* get();
         /**
-         * Get a CVar by it's name hash
+         * Get a CVar by its name hash
          *
          * @param hash The string hash of the CVar to lookup
          * @return The CVarParameter representing the CVar

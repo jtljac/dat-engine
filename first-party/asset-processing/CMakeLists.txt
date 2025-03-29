@@ -10,7 +10,7 @@ project(dat-asset-processor
 # Static Library                                #
 #################################################
 
-add_library(lib-dat-asset-processor STATIC source/asset-processor-application.cpp)
+add_library(lib-dat-asset-processor STATIC)
 target_link_libraries(lib-dat-asset-processor PRIVATE lib-dat-asset-io)
 
 find_package(glslang CONFIG REQUIRED)
@@ -24,7 +24,6 @@ target_include_directories(lib-dat-asset-processor PUBLIC include)
 target_sources(lib-dat-asset-processor PRIVATE
         include/asset-process-exception.h
         include/base-asset-processor.h source/base-asset-processor.cpp
-        include/copy-processor.h source/copy-processor.cpp
         include/shader-processor.h source/shader-processor.cpp
 )
 
@@ -33,10 +32,19 @@ target_sources(lib-dat-asset-processor PRIVATE
 #################################################
 
 add_executable(dat-asset-processor-application
-        source/asset-processor-application.cpp
+        source/application/asset-processor-application.cpp
 )
+
 add_dependencies(dat-asset-processor-application lib-dat-asset-processor)
 target_link_libraries(dat-asset-processor-application PRIVATE lib-dat-asset-processor)
 
-find_package(Cargs CONFIG REQUIRED)
-target_link_libraries(dat-asset-processor-application PRIVATE cargs)
+find_package(CLI11 CONFIG REQUIRED)
+target_link_libraries(dat-asset-processor-application PRIVATE CLI11::CLI11)
+
+# SPDLog
+find_package(fmt CONFIG REQUIRED)
+target_link_libraries(dat-asset-processor-application PUBLIC fmt::fmt)
+
+# SPDLog
+find_package(spdlog CONFIG REQUIRED)
+target_link_libraries(dat-asset-processor-application PUBLIC spdlog::spdlog)

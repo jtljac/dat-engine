@@ -47,7 +47,10 @@ namespace AssetProcessor::Processors {
         ShaderProcessor(const std::vector<std::filesystem::path>& includePaths) : datIncluder(includePaths) {};
 
         ~ShaderProcessor() override {};
+
+        std::string getProcessorName() override { return "Shader Processor"; }
         std::vector<std::string> getSupportedFormats() override;
-        std::vector<std::filesystem::path> processFile(std::filesystem::path filePath, std::filesystem::path dstDir) override;
+        std::string suggestFileName(const std::string& originalFileName) override;
+        void processFile(const std::filesystem::path& filePath, std::istream& input, std::ostream& output) override;
     };
 }

@@ -49,6 +49,8 @@ glslang::TShader::Includer::IncludeResult* DatIncluder::includeLocal(const char*
     if (exists(path)) {
         return buildIncludeResult(path);
     }
+
+    return nullptr;
 }
 
 void DatIncluder::releaseInclude(IncludeResult* result) {
@@ -73,12 +75,16 @@ EShLanguage ShaderProcessor::getStageFromExtension(const std::string& extension)
 /* -------------------------------------------- */
 
 std::vector<std::string> ShaderProcessor::getSupportedFormats() {
-    return {"vert", "frag", "geom", "comp", "shader", "glsl"};
+    return {".vert", ".frag", ".geom", ".comp", ".shader", ".glsl"};
 }
 
-std::vector<std::filesystem::path>
-ShaderProcessor::processFile(std::filesystem::path filePath, std::filesystem::path dstDir) {
-    const std::vector<char> fileData = readWholeFile(filePath);
+std::string ShaderProcessor::suggestFileName(const std::string& originalFileName) {
+    return originalFileName.substr(0, originalFileName.find_last_of('.')) + ".sprv";
+}
+
+
+void ShaderProcessor::processFile(const std::filesystem::path& filePath, std::istream& input, std::ostream& output) {
+    const std::vector<char> fileData = readWholeStream(input);
 
     const EShLanguage stage = getStageFromExtension(filePath.extension());
     glslang::TShader shader(stage);
@@ -106,8 +112,5 @@ ShaderProcessor::processFile(std::filesystem::path filePath, std::filesystem::pa
     std::vector<uint32_t> spirv;
     GlslangToSpv(intermediate, spirv, &options);
 
-    std::filesystem::path shaderPath = dstDir / (filePath.filename().string() + ".spv");
-    writeFileBuffer(shaderPath, reinterpret_cast<const char*>(spirv.data()), spirv.size() * sizeof(uint32_t));
-
-    return {shaderPath};
+    writeStreamFromBuffer(output, reinterpret_cast<const char*>(spirv.data()), spirv.size() * sizeof(uint32_t));
 }

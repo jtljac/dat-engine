@@ -568,7 +568,7 @@ T getCVarDefaultValueByIndex(const uint32_t index) {
  * Get a pointer to the value of a CVar by index
  * @tparam T The type of the CVar
  * @param index The index of the CVar
- * @return The a pointer to the current value of the CVar
+ * @return The pointer to the current value of the CVar
  */
 template <typename T>
 T* getCVarValuePtrByIndex(uint32_t index) {
