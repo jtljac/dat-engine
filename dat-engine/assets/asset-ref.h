@@ -4,7 +4,7 @@
 
 #include "asset.h"
 
-template<subClass<Asset> assetType = Asset>
+template<DatEngine::subClass<Asset> assetType = Asset>
 class AssetRef {
     /** The asset this references */
     assetType* asset;

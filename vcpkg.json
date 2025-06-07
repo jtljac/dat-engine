@@ -1,22 +1,22 @@
 {
   "name" : "dat-engine",
   "version-string" : "1.0.0",
-  "builtin-baseline" : "b7a701cb475805c27e29ddf635a3b16c37ba51fb",
+  "builtin-baseline" : "3425f537d2f01c761d2d2cff59a7577eb4f568c0",
   "dependencies" : [ {
     "name" : "spdlog",
-    "version>=" : "1.14.1"
+    "version>=" : "1.15.3"
   }, {
     "name" : "vulkan-memory-allocator-hpp",
     "version>=" : "3.1.0"
   }, {
     "name" : "catch2",
-    "version>=" : "3.6.0"
+    "version>=" : "3.8.1"
   }, {
     "name" : "fmt",
-    "version>=" : "10.2.1#2"
+    "version>=" : "11.0.2#1"
   }, {
     "name" : "bxzstr",
-    "version>=" : "1.2.2"
+    "version>=" : "1.2.2#0"
   }, {
     "name" : "assimp",
     "version>=" : "5.4.3"
@@ -25,26 +25,31 @@
     "version>=" : "15.1.0"
   }, {
     "name" : "cli11",
-    "version>=" : "2.4.2#1"
+    "version>=" : "2.5.0#0"
   }, {
     "name" : "yaml-cpp",
-    "version>=" : "0.8.0#2"
+    "version>=" : "0.8.0#3"
   }, {
     "name" : "harfbuzz",
-    "version>=" : "10.2.0#2"
+    "version>=" : "10.2.0#4"
   }, {
     "name" : "indicators",
     "version>=" : "2.3"
   }, {
     "name" : "sdl3",
-    "version>=" : "3.2.8",
-    "features": [
-      "vulkan",
-      "wayland",
-      "x11"
-    ]
+    "version>=" : "3.2.14",
+    "features" : [ "vulkan", "wayland", "x11" ]
   }, {
-    "name" : "llfio",
-    "version>=" : "2025-01-13"
-  } ]
+    "name" : "libxcrypt",
+    "version>=" : "4.4.38"
+  }, {
+    "name" : "rsm-mmio",
+    "version>=" : "2.0.0"
+  } ],
+  "overrides": [
+    {
+      "name": "vulkan-headers",
+      "version": "1.4.304.1#1"
+    }
+  ]
 }

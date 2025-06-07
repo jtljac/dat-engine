@@ -1,10 +1,14 @@
 #include "../vk-shortcuts.h"
 
+#include <fstream>
+
 #include <util/logger.h>
-#include <vulkan/vulkan_to_string.hpp>
+#include <vulkan/vulkan.hpp>
 #include <vk_mem_alloc.h>
 
-vk::ImageCreateInfo DatEngine::DatGPU::DatVk::Shortcuts::getImageCreateInfo(
+using namespace DatEngine::DatGPU::DatVk::Shortcuts;
+
+vk::ImageCreateInfo getImageCreateInfo(
         const vk::Format format,
         const vk::ImageUsageFlags usageFlags,
         const vk::Extent3D extent,
@@ -22,7 +26,7 @@ vk::ImageCreateInfo DatEngine::DatGPU::DatVk::Shortcuts::getImageCreateInfo(
             usageFlags
     };
 }
-vk::ImageViewCreateInfo DatEngine::DatGPU::DatVk::Shortcuts::getImageViewCreateInfo(
+vk::ImageViewCreateInfo getImageViewCreateInfo(
         const vk::Format format,
         const vk::Image image,
         const vk::ImageAspectFlags aspectFlags
@@ -43,7 +47,7 @@ vk::ImageViewCreateInfo DatEngine::DatGPU::DatVk::Shortcuts::getImageViewCreateI
     };
 }
 
-void DatEngine::DatGPU::DatVk::Shortcuts::transitionImage(
+void transitionImage(
         const vk::CommandBuffer cmd,
         const vk::Image image,
         const vk::ImageLayout currentLayout,
@@ -76,7 +80,7 @@ void DatEngine::DatGPU::DatVk::Shortcuts::transitionImage(
     cmd.pipelineBarrier2(vk::DependencyInfo().setImageMemoryBarrierCount(1).setImageMemoryBarriers(imageBarrier));
 }
 
-void DatEngine::DatGPU::DatVk::Shortcuts::copyImageToImage(
+void copyImageToImage(
         const vk::CommandBuffer cmd,
         const vk::Image srcImage,
         const vk::Image dstImage,
@@ -98,29 +102,52 @@ void DatEngine::DatGPU::DatVk::Shortcuts::copyImageToImage(
     cmd.blitImage2(blitInfo);
 }
 
+std::optional<vk::ShaderModule> loadShaderModule(std::filesystem::path filePath, vk::Device device) {
+    std::ifstream spirv(filePath, std::ios::binary | std::ios::ate);
+
+    if (!spirv.is_open()) {
+        return std::nullopt;
+    }
+
+    size_t fileSize = spirv.tellg();
+    std::vector<uint32_t> buffer(fileSize / sizeof(uint32_t));
+
+    spirv.seekg(0);
+    spirv.read(reinterpret_cast<char*>(buffer.data()), fileSize);
+    spirv.close();
+
+    vk::ShaderModuleCreateInfo createInfo({}, fileSize, buffer.data());
+
+    device.
+
+    return device.createShaderModule(createInfo);
+}
+
 /* -------------------------------------------- */
 /* DescriptorLayoutBuilder                      */
 /* -------------------------------------------- */
 
-void DatEngine::DatGPU::DatVk::Shortcuts::DescriptorLayoutBuilder::addBinding(
+DescriptorLayoutBuilder& DescriptorLayoutBuilder::addBinding(
         uint32_t binding, vk::DescriptorType type
 ) {
-    bindings.push_back({binding, type, 1});
+    bindings.emplace_back(binding, type, 1);
+    return *this;
 }
 
-void DatEngine::DatGPU::DatVk::Shortcuts::DescriptorLayoutBuilder::clear() { bindings.clear(); }
+DescriptorLayoutBuilder& DescriptorLayoutBuilder::clear() {
+    bindings.clear();
+    return *this;
+}
 
-vk::DescriptorSetLayout DatEngine::DatGPU::DatVk::Shortcuts::DescriptorLayoutBuilder::build(
-        const vk::Device device, const vk::ShaderStageFlagBits stage, const void* pNext, const vk::DescriptorSetLayoutCreateFlagBits flags) {
-    for (auto& binding : bindings) {
+vk::DescriptorSetLayout DescriptorLayoutBuilder::build(
+        const vk::Device device,
+        const vk::ShaderStageFlagBits stage,
+        const void* pNext,
+        const vk::DescriptorSetLayoutCreateFlagBits flags
+) {
+    for (auto& binding: bindings) {
         binding.stageFlags |= stage;
     }
 
-    return device.createDescriptorSetLayout({
-        flags,
-        bindings,
-        pNext
-    });
+    return device.createDescriptorSetLayout({flags, bindings, pNext});
 }
-
-

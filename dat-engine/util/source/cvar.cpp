@@ -14,7 +14,7 @@ using namespace DatEngine;
 /* -------------------------------------------- */
 
 /**
- * An enum representing the type of a CVar
+ * An enum representing the type of CVar
  */
 enum class CVarType : uint8_t {
     /** @link int32_t */

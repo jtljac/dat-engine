@@ -52,6 +52,10 @@ bool VulkanGPU::initialise() {
         return false;
     if (!initialiseGBuffers())
         return false;
+    if (!initialiseDescriptors())
+        return false;
+    if (!initialisePipelines())
+        return false;
 
     CORE_INFO("Vulkan Renderer Initialised");
     return true;
@@ -60,16 +64,15 @@ bool VulkanGPU::initialise() {
 void VulkanGPU::draw() {
     auto& [commandPool, commandBuffer, renderFence, renderSemaphore, swapchainSemaphore] = getCurrentFrame();
 
+    // Wait for the last usage of this swapchain image to finish
     VK_QUICK_FAIL(device.waitForFences(1, &renderFence, true, 1000000000));
     VK_QUICK_FAIL(device.resetFences(1, &renderFence));
 
     uint32_t swapchainImageIndex;
     VK_QUICK_FAIL(device.acquireNextImageKHR(swapchain, 1000000000, swapchainSemaphore, nullptr, &swapchainImageIndex));
-
     auto& [swapchainImage, swapchainImageView] = swapchainData[swapchainImageIndex];
 
     VK_QUICK_FAIL(commandBuffer.reset());
-
     VK_QUICK_FAIL(commandBuffer.begin(vk::CommandBufferBeginInfo(vk::CommandBufferUsageFlagBits::eOneTimeSubmit)));
 
     Shortcuts::transitionImage(commandBuffer, drawImage.image,
@@ -79,6 +82,7 @@ void VulkanGPU::draw() {
 
     drawBackground(commandBuffer);
 
+    // Copy draw image to swapchain image
     Shortcuts::transitionImage(commandBuffer, drawImage.image,
                                vk::ImageLayout::eGeneral, vk::ImageLayout::eTransferSrcOptimal,
                                vk::PipelineStageFlagBits2::eTopOfPipe,vk::PipelineStageFlagBits2::eComputeShader,
@@ -87,9 +91,7 @@ void VulkanGPU::draw() {
                                vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal,
                                vk::PipelineStageFlagBits2::eTopOfPipe,vk::PipelineStageFlagBits2::eComputeShader,
                                vk::AccessFlagBits2::eNone, vk::AccessFlagBits2::eMemoryWrite);
-
     Shortcuts::copyImageToImage(commandBuffer, drawImage.image, swapchainImage, drawImageExtent, swapchainExtent);
-
     Shortcuts::transitionImage(commandBuffer, swapchainImage,
                                vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::ePresentSrcKHR,
                                vk::PipelineStageFlagBits2::eComputeShader,vk::PipelineStageFlagBits2::eComputeShader,
@@ -110,7 +112,7 @@ void VulkanGPU::draw() {
     ++frameNumber;
 }
 
-void VulkanGPU::drawBackground(vk::CommandBuffer cmd) {
+void VulkanGPU::drawBackground(const vk::CommandBuffer cmd) {
     cmd.clearColorImage(drawImage.image, vk::ImageLayout::eGeneral,
                                   {0.f, 0.f, std::abs(DatMaths::sin(frameNumber / 120.f)), 0.f},
                                   vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor,
@@ -173,15 +175,21 @@ bool VulkanGPU::setupDebugMessenger() {
         return false;
     }
 
-
-
-    VK_CHECK(debugMessenger, instance.createDebugUtilsMessengerEXT(vk::DebugUtilsMessengerCreateInfoEXT(
-        {},
-        vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo | vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning
-        | vk::DebugUtilsMessageSeverityFlagBitsEXT::eError | vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose,
-        vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral | vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance
-        | vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation,
-        debugCallback, nullptr)));
+    VK_CHECK(debugMessenger, instance.createDebugUtilsMessengerEXT(
+                    vk::DebugUtilsMessengerCreateInfoEXT(
+                            {},
+                            vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo
+                                    | vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning
+                                    | vk::DebugUtilsMessageSeverityFlagBitsEXT::eError
+                                    | vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose,
+                            vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral
+                                    | vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance
+                                    | vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation,
+                            debugCallback,
+                            nullptr
+                    )
+            )
+    );
     return true;
 }
 
@@ -339,12 +347,10 @@ bool VulkanGPU::initialiseFrameData() {
 }
 
 bool VulkanGPU::initialiseFrameCommandStructure(FrameData& frameData) const {
-    const vk::CommandPoolCreateInfo commandPoolCreateInfo(vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
-                                                          graphicsQueueIndex);
+    const vk::CommandPoolCreateInfo commandPoolCreateInfo(vk::CommandPoolCreateFlagBits::eResetCommandBuffer, graphicsQueueIndex);
     VK_CHECK(frameData.commandPool, device.createCommandPool(commandPoolCreateInfo));
 
-    const vk::CommandBufferAllocateInfo commandAllocCreateInfo(frameData.commandPool, vk::CommandBufferLevel::ePrimary,
-                                                               1);
+    const vk::CommandBufferAllocateInfo commandAllocCreateInfo(frameData.commandPool, vk::CommandBufferLevel::ePrimary,1);
     VK_CHECK(const std::vector<vk::CommandBuffer> bufferList, device.allocateCommandBuffers(commandAllocCreateInfo));
     frameData.commandBuffer = bufferList[0];
 
@@ -374,24 +380,43 @@ bool VulkanGPU::initialiseGBuffers() {
             drawImage.extent
     );
 
-    vma::AllocationCreateInfo vmaAllocationCreateInfo{
-        {},
-        vma::MemoryUsage::eGpuOnly,
-        vk::MemoryPropertyFlagBits::eDeviceLocal
-    };
     std::pair<vk::Image, vma::Allocation> result;
-    VK_CHECK(result, allocator.createImage(drawImageCreateInfo, vmaAllocationCreateInfo));
+    VK_CHECK(result, allocator.createImage(drawImageCreateInfo, {
+            {},
+            vma::MemoryUsage::eGpuOnly,
+            vk::MemoryPropertyFlagBits::eDeviceLocal
+    }));
 
     drawImage.image = result.first;
     drawImage.allocation = result.second;
 
-    VK_CHECK(drawImage.view, device.createImageView(Shortcuts::getImageViewCreateInfo(
-        drawImage.format,
-        drawImage.image,
-        vk::ImageAspectFlagBits::eColor
-    )));
+    VK_CHECK(drawImage.view,
+        device.createImageView(Shortcuts::getImageViewCreateInfo(drawImage.format, drawImage.image, vk::ImageAspectFlagBits::eColor)));
 
     return true;
+}
+
+bool VulkanGPU::initialiseDescriptors() {
+    globalDescriptorAllocator.initPool(device, 10, {{{vk::DescriptorType::eStorageImage, 1}}});
+
+    drawImageDescriptorSetLayout = Shortcuts::DescriptorLayoutBuilder()
+                                           .addBinding(0, vk::DescriptorType::eStorageImage)
+                                           .build(device, vk::ShaderStageFlagBits::eCompute);
+
+    drawImageDescriptorSet = globalDescriptorAllocator.allocate(drawImageDescriptorSetLayout);
+
+    vk::DescriptorImageInfo imagInfo = {{}, drawImage.view, vk::ImageLayout::eGeneral};
+
+    vk::WriteDescriptorSet
+            writeDescriptorSet{drawImageDescriptorSet, 0, {}, 1, vk::DescriptorType::eStorageImage, &imagInfo};
+
+    device.updateDescriptorSets(1, &writeDescriptorSet, 0, nullptr);
+
+    return true;
+}
+
+bool VulkanGPU::initialisePipelines() {
+
 }
 
 /* -------------------------------------------- */
@@ -434,7 +459,6 @@ void VulkanGPU::destroySwapchain() {
 }
 
 void VulkanGPU::destroyGpuMemory() {
-
 }
 
 /* -------------------------------------------- */
@@ -456,34 +480,22 @@ bool VulkanGPU::checkValidationLayersSupport() const {
 
     return !layerMissed;
 }
-VkBool32 VulkanGPU::debugCallback(const VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-                                       const VkDebugUtilsMessageTypeFlagsEXT messageType,
-                                       const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) {
-    std::string type;
-    switch (messageType) {
-        case VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT:
-            type = "General";
-            break;
-        case VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT:
-            type = "Validation";
-            break;
-        case VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT:
-            type = "Performance";
-            break;
-        default:;
-    }
+VkBool32 VulkanGPU::debugCallback(const vk::DebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+                                       const vk::DebugUtilsMessageTypeFlagsEXT messageType,
+                                       const vk::DebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) {
+    std::string type = vk::to_string(messageType);
 
     switch (messageSeverity) {
-        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
+        case vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose:
             CORE_DEBUG("[Vulkan Validation][{}]: {}", type, pCallbackData->pMessage);
             break;
-        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
+        case vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo:
             CORE_INFO("[Vulkan Validation][{}]: {}", type, pCallbackData->pMessage);
             break;
-        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
+        case vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning:
             CORE_WARN("[Vulkan Validation][{}]: {}", type, pCallbackData->pMessage);
             break;
-        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
+        case vk::DebugUtilsMessageSeverityFlagBitsEXT::eError:
             CORE_ERROR("[Vulkan Validation][{}]: {}", type, pCallbackData->pMessage);
             break;
         default:;
@@ -599,6 +611,9 @@ void VulkanGPU::cleanup() {
     CORE_TRACE("Cleaning up the Vulkan Renderer");
 
     destroyGpuMemory();
+
+    device.destroyDescriptorSetLayout(drawImageDescriptorSetLayout);
+    globalDescriptorAllocator.destroyPool();
 
     device.destroyImageView(drawImage.view);
     vmaDestroyImage(allocator, drawImage.image, drawImage.allocation);

@@ -53,10 +53,13 @@ namespace DatEngine::DatGPU::DatVk {
         /** Size of the swapchain images (Might not match user set window size) */
         vk::Extent2D swapchainExtent;
 
+        // Frame
         /** Number of frames to buffer */
         int bufferedFrames = 0;
         /** Number of images in the swapchain (Might not match user set buffered frames) */
         size_t swapchainImageCount = 0;
+        /** The current frame the renderer is on */
+        int frameNumber = 0;
         /** Array of swapchain images and image views */
         SwapchainData* swapchainData = nullptr;
         /** Array of per frame data */
@@ -66,8 +69,14 @@ namespace DatEngine::DatGPU::DatVk {
         AllocatedImage drawImage;
         vk::Extent2D drawImageExtent = {};
 
-        /** The current frame the renderer is on */
-        int frameNumber = 0;
+        DescriptorAllocator globalDescriptorAllocator;
+
+        vk::DescriptorSet drawImageDescriptorSet;
+        vk::DescriptorSetLayout drawImageDescriptorSetLayout;
+
+        // Pipelines
+        vk::Pipeline gradientPipeline;
+        vk::PipelineLayout gradientPipelineLayout;
 
         // Validation Layers
 #ifdef _DEBUG
@@ -132,6 +141,7 @@ namespace DatEngine::DatGPU::DatVk {
          * @return @code true@endcode if successful
          */
         bool initialiseFrameData();
+
         /**
          * Initialise the command structures of the given frame data
          * @param frameData The frame data to populate
@@ -146,7 +156,26 @@ namespace DatEngine::DatGPU::DatVk {
          */
         bool initialiseFrameSyncStructure(FrameData& frameData) const;
 
+        /**
+         * Initialise the supporting frame buffers for each frame
+         *
+         * @return @code true@endcode if successful
+         */
         bool initialiseGBuffers();
+
+        /**
+         * Initialised the global descriptors
+         *
+         * @return @code true@endcode if successful
+         */
+        bool initialiseDescriptors();
+
+        /**
+         * Initialise the global pipelines
+         *
+         * @return @code true@endcode if successful
+         */
+        bool initialisePipelines();
 
         // Draw
         void drawBackground(vk::CommandBuffer cmd);
@@ -181,9 +210,9 @@ namespace DatEngine::DatGPU::DatVk {
          *
          * @return Indicates if the vulkan call should be aborted (Always @code false@endcode)
          */
-        static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-                                                            VkDebugUtilsMessageTypeFlagsEXT messageType,
-                                                            const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+        static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(vk::DebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+                                                            vk::DebugUtilsMessageTypeFlagsEXT messageType,
+                                                            const vk::DebugUtilsMessengerCallbackDataEXT* pCallbackData,
                                                             void* pUserData);
 
         /**
@@ -234,6 +263,10 @@ namespace DatEngine::DatGPU::DatVk {
          */
         [[nodiscard]] vk::PresentModeKHR getIdealPresentMode() const;
 
+        /**
+         * Get the current framedata being used for rendering
+         * @return The current framedata being used for rendering
+         */
         [[nodiscard]] FrameData& getCurrentFrame() const;
 
     public:

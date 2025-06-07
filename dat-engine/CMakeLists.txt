@@ -4,6 +4,7 @@ target_sources(dat-engine PRIVATE
         "dat-engine.h" "source/dat-engine.cpp"
 )
 
+#add_subdirectory(assets)
 add_subdirectory(container)
 add_subdirectory(maths)
 add_subdirectory(platform)
