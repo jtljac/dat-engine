@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.22)
 
+include(cmake/CPM.cmake)
+
 project(dat-engine VERSION 1.0.0
         DESCRIPTION "Project for Dat Engine"
         LANGUAGES CXX)
@@ -12,8 +14,6 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED 1)
 
 add_library(dat-engine STATIC)
-
-include(cmake/CPM.cmake)
 
 #################################################
 # Config Variables                              #
@@ -52,7 +52,7 @@ else()
     target_compile_options(dat-engine PUBLIC -march=native)
 endif()
 
-#add_subdirectory(first-party)
+add_subdirectory(first-party)
 add_subdirectory(third-party)
 add_subdirectory(dat-engine)
 #

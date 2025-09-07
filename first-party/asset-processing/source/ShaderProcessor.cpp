@@ -1,0 +1,116 @@
+#include "ShaderProcessor.h"
+
+#include <fstream>
+#include <iostream>
+
+#include <glslang/SPIRV/GlslangToSpv.h>
+#include <glslang/Public/ResourceLimits.h>
+
+#include "AssetProcessException.h"
+
+using namespace AssetProcessor::Processors;
+
+/* -------------------------------------------- */
+/* DatShaderIncluder                            */
+/* -------------------------------------------- */
+
+glslang::TShader::Includer::IncludeResult* DatIncluder::buildIncludeResult(const std::filesystem::path& path) {
+    std::ifstream stream(path, std::ios::binary | std::ios::ate);
+    std::size_t size = stream.tellg();
+
+    stream.seekg(0, std::ios::beg);
+
+    char* buffer = new char[size];
+    stream.read(buffer, size);
+
+    return new IncludeResult(path.string(), buffer, size, nullptr);
+}
+
+glslang::TShader::Includer::IncludeResult* DatIncluder::includeSystem(const char* headerName,
+                                                                      const char* includerName,
+                                                                      size_t inclusionDepth) {
+    for (auto include : includes) {
+        include /= headerName;
+
+        if (exists(include)) {
+            return buildIncludeResult(include);
+        }
+    }
+
+    return nullptr;
+}
+
+glslang::TShader::Includer::IncludeResult* DatIncluder::includeLocal(const char* headerName,
+                                                                     const char* includerName,
+                                                                     size_t inclusionDepth) {
+    std::filesystem::path path(includerName);
+    path = path.parent_path() / headerName;
+
+    if (exists(path)) {
+        return buildIncludeResult(path);
+    }
+
+    return nullptr;
+}
+
+void DatIncluder::releaseInclude(IncludeResult* result) {
+    delete[] result->headerData;
+    delete result;
+}
+
+EShLanguage ShaderProcessor::getStageFromExtension(const std::string& extension) {
+    if (extension == ".vert") {
+        return EShLangVertex;
+    } if (extension == ".geom") {
+        return EShLangGeometry;
+    } if (extension == ".comp") {
+        return EShLangCompute;
+    }
+
+    return EShLangFragment;
+}
+
+/* -------------------------------------------- */
+/* ShaderProcessor                              */
+/* -------------------------------------------- */
+
+std::vector<std::string> ShaderProcessor::getSupportedFormats() {
+    return {".vert", ".frag", ".geom", ".comp", ".shader", ".glsl"};
+}
+
+std::string ShaderProcessor::suggestFileName(const std::string& originalFileName) {
+    return originalFileName.substr(0, originalFileName.find_last_of('.')) + ".sprv";
+}
+
+
+void ShaderProcessor::processFile(const std::filesystem::path& filePath, std::istream& input, std::ostream& output) {
+    const std::vector<char> fileData = readWholeStream(input);
+
+    const EShLanguage stage = getStageFromExtension(filePath.extension());
+    glslang::TShader shader(stage);
+
+    const char* strings[] = {fileData.data()};
+    shader.setStrings(strings, 1);
+
+    shader.setEnvClient(glslang::EShClientVulkan, glslang::EShTargetVulkan_1_4);
+    shader.setEnvTarget(glslang::EshTargetSpv, glslang::EShTargetSpv_1_3);
+    shader.setEntryPoint("main");
+
+    auto messages = static_cast<EShMessages>(EShMsgDefault | EShMsgVulkanRules | EShMsgSpvRules);
+    if (!shader.parse(GetDefaultResources(), 450, ENoProfile, false, false, messages, datIncluder)) {
+        throw Exception::AssetProcessingException(shader.getInfoLog(), filePath);
+    }
+
+    glslang::TProgram program;
+    program.addShader(&shader);
+    if (!program.link(messages)) {
+        throw Exception::AssetProcessingException(program.getInfoLog(), filePath);
+    }
+
+    glslang::TIntermediate& intermediate = *program.getIntermediate(stage);
+    glslang::SpvOptions options = {.validate = true};
+    std::vector<uint32_t> spirv;
+    GlslangToSpv(intermediate, spirv, &options);
+
+    writeStreamFromBuffer(output, reinterpret_cast<const char*>(spirv.data()), spirv.size() * sizeof(uint32_t));
+}

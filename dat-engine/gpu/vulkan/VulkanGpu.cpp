@@ -32,14 +32,15 @@ void VulkanGPU::initialise() {
 #endif
 
     initialisePhysicalDevice();
-
     initialiseDevice();
     initialiseVma();
     initialiseSurface();
     initialiseSwapchain();
-    initialiseSwapchainImages();
+    initialiseSwapchainData();
     initialiseFrameData();
     initialiseGBuffers();
+    initialiseDescriptors();
+    initialisePipelines();
 
     CORE_INFO("Vulkan Renderer Initialised");
 }
@@ -58,18 +59,20 @@ void VulkanGPU::initialiseInstance() {
     );
 
     SDL_Vulkan_LoadLibrary(nullptr);
+    // First dynamic dispatcher initialisation for regular vulkan stuff
     VULKAN_HPP_DEFAULT_DISPATCHER.init();
 
     uint32_t sdlInstanceExtensionsCount;
     const char* const* sdlInstanceExtensions = SDL_Vulkan_GetInstanceExtensions(&sdlInstanceExtensionsCount);
 
     if (sdlInstanceExtensions == nullptr) {
-        throw GpuInitException("Failed to get required instance extensions.");
+        throw GpuInitException("Failed to get required instance extensions from SDL.");
     }
 
     std::vector<const char*> extensions(sdlInstanceExtensionsCount);
     std::memcpy(extensions.data(), sdlInstanceExtensions, sdlInstanceExtensionsCount * sizeof(char*));
 
+    // Debug extensions cost performance, only add them during debugging
 #ifdef _DEBUG
     extensions.push_back(vk::EXTDebugUtilsExtensionName);
 #endif
@@ -79,33 +82,30 @@ void VulkanGPU::initialiseInstance() {
         CORE_DEBUG("- {}", item);
     }
 
+    // Validation layers cost performance, only add any during debugging
 #ifdef _DEBUG
     std::vector<const char*>& layers = this->validationLayers;
 #else
     std::vector<const char*> layers;
 #endif
 
-    const vk::InstanceCreateInfo instanceInfo({}, &applicationInfo, layers, extensions);
+    this->instance = vk::createInstance({{}, &applicationInfo, layers, extensions});
 
-    this->instance = vk::createInstance(instanceInfo);
-
+    // Second dynamic dispatcher initialisation with the context of the instance
     VULKAN_HPP_DEFAULT_DISPATCHER.init(instance);
 }
 
 /* -------------------------------------------- */
 
 void VulkanGPU::setupDebugMessenger() {
-    debugMessenger = instance.createDebugUtilsMessengerEXT(
-            vk::DebugUtilsMessengerCreateInfoEXT(
-                    {},
-                    vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo | vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning
-                            | vk::DebugUtilsMessageSeverityFlagBitsEXT::eError
-                            | vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose,
-                    vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral | vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance
-                            | vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation,
-                    debugCallback
-            )
-    );
+    debugMessenger = instance.createDebugUtilsMessengerEXT({
+        {},
+        vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo | vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning
+            | vk::DebugUtilsMessageSeverityFlagBitsEXT::eError | vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose,
+        vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral | vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance
+            | vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation,
+        debugCallback
+    });
 }
 
 /* -------------------------------------------- */
@@ -123,11 +123,10 @@ void VulkanGPU::initialisePhysicalDevice() {
     this->physicalDevice = physicalDevices[0];
 }
 
-/* -------------------------------------------- */
-
 void VulkanGPU::initialiseDevice() {
     CORE_TRACE("Creating VK Logical Device");
 
+    // Figure out what Vulkan queues we need
     std::unordered_map<uint32_t, uint32_t> queues = selectQueues();
 
     std::vector<vk::DeviceQueueCreateInfo> queueCreateInfos;
@@ -147,6 +146,7 @@ void VulkanGPU::initialiseDevice() {
     }
 #endif
 
+    // Set up device extensions we want to use
     std::vector deviceExtensions{vk::KHRSwapchainExtensionName};
 
     vk::PhysicalDeviceShaderDrawParametersFeatures shaderDrawParameters(true);
@@ -157,11 +157,15 @@ void VulkanGPU::initialiseDevice() {
     vk::PhysicalDeviceVulkan13Features features3;
     features3.setDynamicRendering(true).setSynchronization2(true).setPNext(&features2);
 
+    // Actually create the device
     this->device = physicalDevice.createDevice(
             vk::DeviceCreateInfo({}, queueCreateInfos, nullptr, deviceExtensions, nullptr, &features3)
     );
 
-    // Get queues
+    // third dynamic dispatcher initialisation with the context of the device
+    VULKAN_HPP_DEFAULT_DISPATCHER.init(this->device);
+
+    // Get and store queues
     if (!unifiedTransferQueue)
         device.getQueue(transferQueueIndex, --queues[transferQueueIndex], &transferQueue);
 
@@ -176,6 +180,7 @@ void VulkanGPU::initialiseDevice() {
 void VulkanGPU::initialiseVma() {
     CORE_TRACE("Initialising VMA");
 
+    // Tell VMA where to find the dynamic vulkan functions
     vma::VulkanFunctions vulkanFunctions;
     vulkanFunctions.vkGetInstanceProcAddr = VULKAN_HPP_DEFAULT_DISPATCHER.vkGetInstanceProcAddr;
     vulkanFunctions.vkGetDeviceProcAddr = VULKAN_HPP_DEFAULT_DISPATCHER.vkGetDeviceProcAddr;
@@ -192,6 +197,8 @@ void VulkanGPU::initialiseVma() {
 
 void VulkanGPU::initialiseSurface() {
     CORE_TRACE("Creating Surface");
+
+    // The surface actually comes from SDL, which created it for us
     VkSurfaceKHR surface;
     if (!SDL_Vulkan_CreateSurface(Engine::getInstance()->getWindow(), instance, nullptr, &surface)) {
         throw GpuInitException("Failed to create surface with SDL.");
@@ -233,9 +240,7 @@ void VulkanGPU::initialiseSwapchain() {
     swapchain = device.createSwapchainKHR(swapchainInfo);
 }
 
-/* -------------------------------------------- */
-
-void VulkanGPU::initialiseSwapchainImages() {
+void VulkanGPU::initialiseSwapchainData() {
     CORE_TRACE("Initialising Swapchain Images");
     const std::vector<vk::Image> swapchainImages = device.getSwapchainImagesKHR(swapchain);
 
@@ -273,8 +278,6 @@ void VulkanGPU::initialiseFrameData() {
     }
 }
 
-/* -------------------------------------------- */
-
 void VulkanGPU::initialiseFrameCommandStructure(FrameData& frameData) const {
     const vk::CommandPoolCreateInfo commandPoolCreateInfo(vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
                                                           graphicsQueueIndex);
@@ -286,14 +289,10 @@ void VulkanGPU::initialiseFrameCommandStructure(FrameData& frameData) const {
     frameData.commandBuffer = bufferList[0];
 }
 
-/* -------------------------------------------- */
-
 void VulkanGPU::initialiseFrameSyncStructure(FrameData& frameData) const {
     frameData.renderFence = device.createFence(vk::FenceCreateInfo(vk::FenceCreateFlagBits::eSignaled));
     frameData.swapchainSemaphore = device.createSemaphore({});
 }
-
-/* -------------------------------------------- */
 
 void VulkanGPU::initialiseGBuffers() {
     CORE_TRACE("Initialising G-Buffers");
@@ -304,25 +303,55 @@ void VulkanGPU::initialiseGBuffers() {
 
     const vk::ImageCreateInfo drawImageCreateInfo = Shortcuts::getImageCreateInfo(
             drawImage.format,
-            vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst
-                    | vk::ImageUsageFlagBits::eStorage | vk::ImageUsageFlagBits::eColorAttachment,
-            drawImage.extent
-    );
+            vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst |
+                    vk::ImageUsageFlagBits::eStorage | vk::ImageUsageFlagBits::eColorAttachment,
+            drawImage.extent);
 
-    vma::AllocationCreateInfo vmaAllocationCreateInfo{
-            {},
-            vma::MemoryUsage::eGpuOnly,
-            vk::MemoryPropertyFlagBits::eDeviceLocal
-    };
-    std::pair<vk::Image, vma::Allocation> result;
-    result = allocator.createImage(drawImageCreateInfo, vmaAllocationCreateInfo);
+    auto [image, allocation] = allocator.createImage(
+            drawImageCreateInfo, {{}, vma::MemoryUsage::eGpuOnly, vk::MemoryPropertyFlagBits::eDeviceLocal});
 
-    drawImage.image = result.first;
-    drawImage.allocation = result.second;
+    drawImage.image = image;
+    drawImage.allocation = allocation;
 
     drawImage.view = device.createImageView(
-            Shortcuts::getImageViewCreateInfo(drawImage.format, drawImage.image, vk::ImageAspectFlagBits::eColor)
-    );
+            Shortcuts::getImageViewCreateInfo(drawImage.format, drawImage.image, vk::ImageAspectFlagBits::eColor));
+}
+
+/* -------------------------------------------- */
+
+void VulkanGPU::initialiseDescriptors() {
+    globalDescriptorAllocator.initPool(device, 10, {{{vk::DescriptorType::eStorageImage, 1}}});
+    drawImageDescriptorSetLayout = Shortcuts::DescriptorLayoutBuilder()
+            .addBinding(0, vk::DescriptorType::eStorageImage)
+            .build(device, vk::ShaderStageFlagBits::eCompute);
+
+    drawImageDescriptorSet = globalDescriptorAllocator.allocate(drawImageDescriptorSetLayout);
+
+    vk::DescriptorImageInfo imageInfo = {{}, drawImage.view, vk::ImageLayout::eGeneral};
+
+    const vk::WriteDescriptorSet writeDescriptorSet{drawImageDescriptorSet, 0, {}, 1, vk::DescriptorType::eStorageImage, &imageInfo};
+    device.updateDescriptorSets(1, &writeDescriptorSet, 0, nullptr);
+}
+
+/* -------------------------------------------- */
+
+void VulkanGPU::initialisePipelines() {
+    initialiseBackgroundPipelines();
+}
+
+void VulkanGPU::initialiseBackgroundPipelines() {
+    std::optional<vk::ShaderModule> backgroundModule = Shortcuts::loadShaderModule(device, "assets/gradient.sprv");
+    if (!backgroundModule.has_value()) throw GpuInitException("Failed to get shader module for background");
+    gradientPipelineLayout = device.createPipelineLayout({{}, 1, &drawImageDescriptorSetLayout});
+
+    const auto computePipelineResult = device.createComputePipeline(nullptr,
+        {{}, {{}, vk::ShaderStageFlagBits::eCompute, backgroundModule.value(), "main"},
+            gradientPipelineLayout});
+
+    if (computePipelineResult.result != vk::Result::eSuccess) throw GpuInitException("Failed to create background pipeline");
+    gradientPipeline = computePipelineResult.value;
+
+    device.destroyShaderModule(backgroundModule.value());
 }
 
 /* -------------------------------------------- */
@@ -332,6 +361,7 @@ void VulkanGPU::initialiseGBuffers() {
 void VulkanGPU::draw() {
     auto& [commandPool, commandBuffer, renderFence, swapchainSemaphore] = getCurrentFrame();
 
+    // Wait for the last usage of this swapchain image to finish
     VK_QUICK_FAIL(device.waitForFences(1, &renderFence, true, 1000000000));
     VK_QUICK_FAIL(device.resetFences(1, &renderFence));
 
@@ -351,6 +381,7 @@ void VulkanGPU::draw() {
 
     drawBackground(commandBuffer);
 
+    // Copy draw image to swapchain image
     Shortcuts::transitionImage(commandBuffer, drawImage.image,
                                vk::ImageLayout::eGeneral, vk::ImageLayout::eTransferSrcOptimal,
                                vk::PipelineStageFlagBits2::eTopOfPipe,vk::PipelineStageFlagBits2::eComputeShader,
@@ -359,9 +390,7 @@ void VulkanGPU::draw() {
                                vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal,
                                vk::PipelineStageFlagBits2::eTopOfPipe,vk::PipelineStageFlagBits2::eComputeShader,
                                vk::AccessFlagBits2::eNone, vk::AccessFlagBits2::eMemoryWrite);
-
     Shortcuts::copyImageToImage(commandBuffer, drawImage.image, swapchainImage, drawImageExtent, swapchainExtent);
-
     Shortcuts::transitionImage(commandBuffer, swapchainImage,
                                vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::ePresentSrcKHR,
                                vk::PipelineStageFlagBits2::eComputeShader,vk::PipelineStageFlagBits2::eComputeShader,
@@ -385,11 +414,10 @@ void VulkanGPU::draw() {
 /* -------------------------------------------- */
 
 void VulkanGPU::drawBackground(vk::CommandBuffer cmd) {
-    cmd.clearColorImage(drawImage.image, vk::ImageLayout::eGeneral,
-                                      {0.f, 0.f, std::abs(DatMaths::sin(frameNumber / 120.f)), 0.f},
-                                      vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor,
-                                          0, vk::RemainingMipLevels,
-                                          0, vk::RemainingArrayLayers));
+    cmd.bindPipeline(vk::PipelineBindPoint::eCompute, gradientPipeline);
+    cmd.bindDescriptorSets(vk::PipelineBindPoint::eCompute, gradientPipelineLayout, 0, 1, &drawImageDescriptorSet, 0, nullptr);
+
+    cmd.dispatch(std::ceil(drawImageExtent.width / 16.f), std::ceil(drawImageExtent.height / 16.f), 1);
 }
 
 /* -------------------------------------------- */
@@ -456,7 +484,10 @@ void VulkanGPU::destroySwapchain() {
 
 /* -------------------------------------------- */
 
-void VulkanGPU::destroyGpuMemory() {}
+void VulkanGPU::destroyGpuMemory() {
+    device.destroyPipeline(gradientPipeline);
+    device.destroyPipelineLayout(gradientPipelineLayout);
+}
 
 /* -------------------------------------------- */
 /* Util                                         */

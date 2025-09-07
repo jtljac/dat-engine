@@ -51,8 +51,11 @@ namespace DatEngine::DatGpu::DatVk {
         /** Size of the swapchain images (Might not match user set window size) */
         vk::Extent2D swapchainExtent;
 
+        // Frame
         /** Number of frames to buffer */
         int bufferedFrames = 0;
+        /** The current frame the renderer is on */
+        int frameNumber = 0;
         /** Number of images in the swapchain (Might not match user set buffered frames) */
         size_t swapchainImageCount = 0;
 
@@ -65,8 +68,14 @@ namespace DatEngine::DatGpu::DatVk {
         AllocatedImage drawImage;
         vk::Extent2D drawImageExtent = {};
 
-        /** The current frame the renderer is on */
-        int frameNumber = 0;
+        DescriptorAllocator globalDescriptorAllocator;
+
+        vk::DescriptorSet drawImageDescriptorSet;
+        vk::DescriptorSetLayout drawImageDescriptorSetLayout;
+
+        // Pipelines
+        vk::Pipeline gradientPipeline;
+        vk::PipelineLayout gradientPipelineLayout;
 
         // Validation Layers
 #ifdef _DEBUG
@@ -81,74 +90,89 @@ namespace DatEngine::DatGpu::DatVk {
         /* -------------------------------------------- */
 
         /**
-         * Set up the Vulkan Instance
-         * @return @code true@endcode if successful
+         * Set up the Vulkan Instance wit the requested instance extensions and validation layers, and configures the
+         * dynamic dispatcher
          */
         void initialiseInstance();
 
         /**
-         * Set up the debug messenger
-         * @return @code true@endcode if successful
+         * Set up the debug messenger and register it with the logger
          */
         void setupDebugMessenger();
 
         /**
-         * Select a physical device for vulkan to use
-         * @return @code true@endcode if successful
+         * Select and initialise a physical device for vulkan to use
          */
         void initialisePhysicalDevice();
 
         /**
-         * Create a logical device
-         * @return @code true@endcode if successful
+         * Create a logical device with the required device extensions, and selects and initialises queues
          */
         void initialiseDevice();
 
         /**
          * Set up Vulkan Memory Manager
-         * @return @code true@endcode if successful
          */
         void initialiseVma();
 
         /**
          * Set up the surface used for rendering to
-         * @return @code true@endcode if successful
+         *
+         * Gets the surface from SDL
          */
         void initialiseSurface();
 
         /**
-         * Initialise the swap-chain
-         * @return @code true@endcode if successful
+         * Fetches a swapchain from the driver, selecting the best surface format available from the device, and
+         * fetching atleast as many swapchain images as there are buffered frames (The driver may return more).
          */
         void initialiseSwapchain();
 
         /**
-         * Initialise the swapchain images and image views
-         * @return @code true@endcode if successful
+         * Sets up the swapchain images and image views for rendering to
          */
-        void initialiseSwapchainImages();
+        void initialiseSwapchainData();
 
         /**
-         * Initialise the frame data array
-         * @return @code true@endcode if successful
+         * Set up the structures required by each buffered frame
          */
         void initialiseFrameData();
         /**
-         * Initialise the command structures of the given frame data
+         * Sets up the command pools and command buffers for the given FrameData
+         *
          * @param frameData The frame data to populate
-         * @return @code true@endcode if successful
          */
         void initialiseFrameCommandStructure(FrameData& frameData) const;
 
         /**
-         * Initialise the sync structures of the given frame data
+         * Sets up the semaphores and fences for the given FrameData
+         *
          * @param frameData The frame data to populate
-         * @return @code true@endcode if successful
          */
         void initialiseFrameSyncStructure(FrameData& frameData) const;
 
+        /**
+         * Initialise the supporting frame buffers for each frame
+         *
+         * Allocates each GBuffer image and image view,
+         *
+         */
         void initialiseGBuffers();
 
+        /**
+         * Initialised the global descriptors
+         */
+        void initialiseDescriptors();
+
+        /**
+         * Initialise the global pipelines
+         */
+        void initialisePipelines();
+
+        /**
+         * Set up the pipeline used for drawing the background
+         */
+        void initialiseBackgroundPipelines();
 
         /* -------------------------------------------- */
         /* Draw                                         */
@@ -222,6 +246,7 @@ namespace DatEngine::DatGpu::DatVk {
 
         /**
          * Check if the selected validation layers are supported by the system
+         *
          * @return @code true@endcode if the chosen validation layers are supported
          */
         [[nodiscard]] bool checkValidationLayerSupport() const;
@@ -238,6 +263,7 @@ namespace DatEngine::DatGpu::DatVk {
          * Get the window extent for the current surface
          *
          * This will usually be the size of the window, the value is constrained
+         *
          * @param surfaceCapabilities The capabilities of the surface
          * @return The window extent for the application window
          */
@@ -259,9 +285,9 @@ namespace DatEngine::DatGpu::DatVk {
         [[nodiscard]] vk::PresentModeKHR getIdealPresentMode() const;
 
         /**
-         * Get the frame data for the current frame
+         * Get the current framedata being used for rendering
          *
-         * @return The frame data for the current frame
+         * @return The current framedata being used for rendering
          */
         [[nodiscard]] FrameData& getCurrentFrame() const;
 

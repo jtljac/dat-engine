@@ -1,10 +1,12 @@
 #include "VkShortcuts.h"
 
-#include <vk_mem_alloc.h>
-#include <vulkan/vulkan.hpp>
-#include <vulkan/vulkan_to_string.hpp>
+#include <fstream>
+
+#include "VkStub.h"
 
 #include <util/Logger.h>
+
+using namespace DatEngine::DatGpu::DatVk::Shortcuts;
 
 vk::ImageCreateInfo DatEngine::DatGpu::DatVk::Shortcuts::getImageCreateInfo(
         const vk::Format format,
@@ -24,9 +26,9 @@ vk::ImageCreateInfo DatEngine::DatGpu::DatVk::Shortcuts::getImageCreateInfo(
             usageFlags
     };
 }
-vk::ImageViewCreateInfo DatEngine::DatGpu::DatVk::Shortcuts::getImageViewCreateInfo(
-        const vk::Format format, const vk::Image image, const vk::ImageAspectFlags aspectFlags
-) {
+vk::ImageViewCreateInfo
+DatEngine::DatGpu::DatVk::Shortcuts::getImageViewCreateInfo(const vk::Format format, const vk::Image image,
+                                                            const vk::ImageAspectFlags aspectFlags) {
     return {{}, image, vk::ImageViewType::e2D, format, {}, {aspectFlags, 0, 1, 0, 1}};
 }
 
@@ -85,19 +87,40 @@ void DatEngine::DatGpu::DatVk::Shortcuts::copyImageToImage(
     cmd.blitImage2(blitInfo);
 }
 
+std::optional<vk::ShaderModule> DatEngine::DatGpu::DatVk::Shortcuts::loadShaderModule(vk::Device device, std::filesystem::path filePath) {
+    std::ifstream spirv(filePath, std::ios::binary | std::ios::ate);
+
+    if (!spirv.is_open()) {
+        return std::nullopt;
+    }
+
+    size_t fileSize = spirv.tellg();
+    std::vector<uint32_t> buffer(fileSize / sizeof(uint32_t));
+
+    spirv.seekg(0);
+    spirv.read(reinterpret_cast<char*>(buffer.data()), fileSize);
+    spirv.close();
+
+    return device.createShaderModule({{}, fileSize, buffer.data()});
+}
+
 /* -------------------------------------------- */
 /* DescriptorLayoutBuilder                      */
 /* -------------------------------------------- */
 
-void DatEngine::DatGpu::DatVk::Shortcuts::DescriptorLayoutBuilder::addBinding(
+DescriptorLayoutBuilder& DescriptorLayoutBuilder::addBinding(
         uint32_t binding, vk::DescriptorType type
 ) {
-    bindings.push_back({binding, type, 1});
+    bindings.emplace_back(binding, type, 1);
+    return *this;
 }
 
-void DatEngine::DatGpu::DatVk::Shortcuts::DescriptorLayoutBuilder::clear() { bindings.clear(); }
+DescriptorLayoutBuilder& DescriptorLayoutBuilder::clear() {
+    bindings.clear();
+    return *this;
+}
 
-vk::DescriptorSetLayout DatEngine::DatGpu::DatVk::Shortcuts::DescriptorLayoutBuilder::build(
+vk::DescriptorSetLayout DescriptorLayoutBuilder::build(
         const vk::Device device,
         const vk::ShaderStageFlagBits stage,
         const void* pNext,

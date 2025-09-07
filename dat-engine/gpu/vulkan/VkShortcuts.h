@@ -1,8 +1,10 @@
 #pragma once
 
+#include <filesystem>
+#include <vector>
+
 #include "VkStub.h"
 
-#include <gpu/exception/GpuInitException.h>
 #include <util/Macros.h>
 
 /**
@@ -44,6 +46,7 @@
     }
 
 namespace DatEngine::DatGpu::DatVk::Shortcuts {
+
     /* -------------------------------------------- */
     /* Image                                        */
     /* -------------------------------------------- */
@@ -64,6 +67,14 @@ namespace DatEngine::DatGpu::DatVk::Shortcuts {
             vk::ImageTiling tiling = vk::ImageTiling::eOptimal
     );
 
+    /**
+     * Get a template pre-configured vk::ImageViewCreateInfo
+     *
+     * @param format The format of the image
+     * @param image The image the ImageView belongs to
+     * @param aspectFlags A Bitmask specifying which aspects are included in the ImageView
+     * @return A pre-configured vk::ImageViewCreateInfo
+     */
     vk::ImageViewCreateInfo
     getImageViewCreateInfo(vk::Format format, vk::Image image, vk::ImageAspectFlags aspectFlags);
 
@@ -113,11 +124,41 @@ namespace DatEngine::DatGpu::DatVk::Shortcuts {
             vk::ImageLayout dstLayout = vk::ImageLayout::eTransferDstOptimal
     );
 
+    /* -------------------------------------------- */
+    /* Descriptor Sets                              */
+    /* -------------------------------------------- */
+
+    /**
+     * A builder for creating Descriptor Sets
+     */
     struct DescriptorLayoutBuilder {
+        /** A list of Descriptor Set Bindings to include in the build */
         std::vector<vk::DescriptorSetLayoutBinding> bindings;
 
-        void addBinding(uint32_t binding, vk::DescriptorType type);
-        void clear();
+        /**
+         * Add a new binding to the descriptor set
+         *
+         * @param binding The binding in the descriptor set for the binding
+         * @param type The type of the binding
+         * @return The DescriptorLayoutBuilder for chaining
+         */
+        DescriptorLayoutBuilder& addBinding(uint32_t binding, vk::DescriptorType type);
+
+        /**
+         * Empty the descriptor set Builder
+         * @return The DescriptorLayoutBuilder for chaining
+         */
+        DescriptorLayoutBuilder& clear();
+
+        /**
+         * Build the added bindings into a new DescriptorSetLayout
+         *
+         * @param device The device to own the descriptor set
+         * @param stage The stage the descriptor set will be bound to
+         * @param pNext nullptr or a pointer to a structure extending the resulting DescriptorSetLayout
+         * @param flags Flags for the properties of the DescriptorSetLayout
+         * @return A new DescriptorSetLayout built using the added bindings
+         */
 
         vk::DescriptorSetLayout
         build(vk::Device device,
@@ -125,4 +166,18 @@ namespace DatEngine::DatGpu::DatVk::Shortcuts {
               const void* pNext = nullptr,
               vk::DescriptorSetLayoutCreateFlagBits flags = static_cast<vk::DescriptorSetLayoutCreateFlagBits>(0));
     };
+
+    /* -------------------------------------------- */
+    /* Shader                                       */
+    /* -------------------------------------------- */
+
+    /**
+     * Create a shader module from spir-v on the filesystem
+     *
+     * @param device The device to own the shader module
+     * @param filePath The path to the shader spirv
+     * @return a result that contains the shader module
+     */
+    std::optional<vk::ShaderModule> loadShaderModule(vk::Device device, std::filesystem::path filePath);
+
 } // namespace DatEngine::DatGpu::DatVk::Shortcuts
