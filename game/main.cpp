@@ -4,6 +4,8 @@
 
 #include <gpu/vulkan/VulkanGpu.h>
 
+#include "event-bus/EventBus.h"
+
 using namespace DatEngine;
 
 int main() {

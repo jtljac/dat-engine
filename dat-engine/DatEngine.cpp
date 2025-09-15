@@ -16,6 +16,13 @@ extern CVarEnum<DatGpu::WindowMode> windowModeCVar;
 Engine* Engine::instance = nullptr;
 
 bool Engine::preInit() {
+    // Logger
+    // Asset Manager
+    // Input
+    // Busses
+    // Console?
+    // Localisation?
+    // GPU?
     DatLog::init();
 
     return true;

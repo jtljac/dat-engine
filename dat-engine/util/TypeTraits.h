@@ -7,7 +7,7 @@
 #include <concepts>
 #include <type_traits>
 
-namespace DatEngine {
+namespace DatEngine::TypeTraits {
     /* -------------------------------------------- */
     /*  Concepts                                    */
     /* -------------------------------------------- */
@@ -16,32 +16,32 @@ namespace DatEngine {
      * Concept for testing if a value is an integer type
      */
     template<typename T>
-    concept integral = std::is_integral_v<T>;
+    concept CIntegral = std::is_integral_v<T>;
 
     /**
      * Concept for testing if a value is an unsigned integer type
      */
     template<typename T>
-    concept uIntegral = std::is_integral_v<T> && std::is_unsigned_v<T>;
+    concept CUIntegral = std::is_integral_v<T> && std::is_unsigned_v<T>;
 
     /**
      * Concept for testing if a value is a signed integer type
      */
     template<typename T>
-    concept sIntegral = std::is_integral_v<T> && std::is_signed_v<T>;
+    concept CSIntegral = std::is_integral_v<T> && std::is_signed_v<T>;
 
     /**
      * Concept for testing if a value is a floating point number
      */
     template<typename T>
-    concept floating_point = std::is_floating_point_v<T>;
+    concept CFloating = std::is_floating_point_v<T>;
 
 
     /**
      * Concept for testing if a value is a number (floating point or integral)
      */
     template<typename T>
-    concept CNumeric = integral<T> || floating_point<T>;
+    concept CNumeric = CIntegral<T> || CFloating<T>;
 
     template<typename T>
     concept CEnumType = std::is_enum_v<T>;
@@ -53,7 +53,7 @@ namespace DatEngine {
     /**
      * Concept for testing if a class is a subclass of another
      * @tparam T The class to test
-     * @tparam base The base class to check if T is a child of
+     * @tparam TBase The base class to check if T is a child of
      */
     template<typename T, typename TBase>
     concept CSubClass = std::is_base_of_v<TBase, T>;
@@ -69,7 +69,7 @@ namespace DatEngine {
     /**
      * Concept for testing if a type is exactly the type `exactType`
      * @tparam T The type to test
-     * @tparam TExact The class to check if `T` matchss
+     * @tparam TExact The class to check if `T` matches
      */
     template<typename T, typename TExact>
     concept CExactClass = std::same_as<T, TExact>;

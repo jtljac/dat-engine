@@ -15,7 +15,7 @@ namespace DatEngine {
      * @tparam size The number of components in the vector
      * @tparam TComponent The type of the components of the vector
      */
-    template<int size, CNumeric TComponent>
+    template<int size, TypeTraits::CNumeric TComponent>
         requires(size > 4)
     struct DatMaths::Vector<size, TComponent> {
 
@@ -48,7 +48,7 @@ namespace DatEngine {
          * Initialises each component to a given value
          * @param args The components of the vector
          */
-        Vector(const CConvertsTo<TComponent> auto&... args)
+        Vector(const TypeTraits::CConvertsTo<TComponent> auto&... args)
             requires(sizeof...(args) == size)
             : components(args...) {}
 

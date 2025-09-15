@@ -15,7 +15,7 @@ namespace DatEngine {
      * @tparam TValue The type of the value stored in the sparse set
      * @tparam TKey The type of the key, must be an integral type
      */
-    template<typename TValue, uIntegral TKey = uint32_t>
+    template<typename TValue, TypeTraits::CUIntegral TKey = uint32_t>
     struct SparseMap {
         using TSparse = TKey;
         using TDense = std::pair<TKey, TValue>;

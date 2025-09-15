@@ -4,7 +4,7 @@
 #include <util/TypeTraits.h>
 
 namespace DatEngine::DatMaths {
-    template<floating_point TComponent>
+    template<TypeTraits::CFloating TComponent>
     struct Quaternion {
         typedef Quaternion TQuat;
 

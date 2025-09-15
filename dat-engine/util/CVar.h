@@ -394,7 +394,7 @@ namespace DatEngine {
      * CVar Specialisation for Integer Enum Types
      * @tparam T The intergral enum to represent
      */
-    template<CIntegralEnumType T>
+    template<TypeTraits::CIntegralEnumType T>
     struct CVarEnum : CVarInt {
         CVarEnum(
                 const char* name,

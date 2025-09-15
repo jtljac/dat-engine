@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.22)
 
 CPMAddPackage("gh:catchorg/Catch2@3.10.0")
 list(APPEND CMAKE_MODULE_PATH ${Catch2_SOURCE_DIR}/extras)
-message(${CMAKE_MODULE_PATH})
 include(Catch)
 
 add_executable(dat-engine-tests

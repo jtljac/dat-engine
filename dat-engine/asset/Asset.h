@@ -4,7 +4,7 @@
 #include <cassert>
 #include <cstdint>
 
-#include "dat-path.h"
+#include "DatPath.h"
 
 namespace DatEngine::Assets {
     // Predefines
@@ -24,9 +24,9 @@ namespace DatEngine::Assets {
         AssetState state = AssetState::UNLOADED;
         unsigned int cpuLock = 0;
 
-        DVFS::DatPath assetPath;
+        Dvfs::DatPath assetPath;
     public:
-        Asset(AssetManager* owningAssMan, DVFS::DatPath assetPath) : owningAssMan(owningAssMan),
+        Asset(AssetManager* owningAssMan, Dvfs::DatPath assetPath) : owningAssMan(owningAssMan),
                                                                             assetPath(std::move(assetPath)) {};
 
         // Deconstructor must be dealt with to clear asset from memory

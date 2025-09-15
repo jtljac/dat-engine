@@ -6,11 +6,10 @@
 
 #include <util/TypeTraits.h>
 
-#include <dat-vfs.h>
+#include <DatVfs.h>
 
 #include "Asset.h"
 #include "AssetRef.h"
-#include "AssetFactory.h"
 
 using TypeInfoRef = std::reference_wrapper<const std::type_info>;
 
@@ -31,27 +30,26 @@ namespace DatEngine::Assets {
 
     class AssetManager {
         /** Cache for engine-assets already in use */
-        std::unordered_map<DVFS::DatPath, AssetRef<Asset>> assetCache;
+        // std::unordered_map<Dvfs::DatPath, AssetRef<>> assetCache;
 
-        /** Factories for loading engine-assets from the disk */
-        std::unordered_map<TypeInfoRef, AssetFactory*, TypeInfoHasher, TypeInfoEqualTo> assetFactories;
+        Dvfs::DatVFS vfs;
 
-        template<CSubClass<Asset> TAssetType>
-        AssetRef<TAssetType>* getAsset(const DVFS::DatPath& path, const bool ensureLoaded = false) {
+        template<TypeTraits::CSubClass<Asset> TAssetType>
+        AssetRef<TAssetType> getAsset(const Dvfs::DatPath& path, const bool ensureLoaded = false) {
             // Check cache
-            if (assetCache.contains(path)) {
-                return assetCache.at(path).clone<TAssetType>();
-            }
-
-            // Create new asset ref
-            TAssetType* asset = new TAssetType(this, path);
-            assetCache.emplace(path, asset);
+            // if (assetCache.contains(path)) {
+            //     return assetCache.at(path).clone<TAssetType>();
+            // }
+            //
+            // // Create new asset ref
+            // TAssetType* asset = new TAssetType(this, path);
+            // assetCache.emplace(path, asset);
 
             if (ensureLoaded) {
                 // TODO: add to load queue
             }
 
-            return AssetRef<TAssetType>::createAssetRef(asset);
+            // return AssetRef<TAssetType>::createAssetRef(asset);
         }
 
         // Garbage collection

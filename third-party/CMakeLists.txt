@@ -18,6 +18,10 @@ target_link_libraries(dat-engine PUBLIC Vulkan::Headers GPUOpen::VulkanMemoryAll
 CPMAddPackage("gh:Ryan-rsm-McKenzie/mmio#2.0.0")
 target_link_libraries(dat-engine PUBLIC spdlog::spdlog)
 
+## fastIO
+#CPMAddPackage("gh:cppfastio/fast_io#87eee28c6130fc01459c62b708f9afde9d766b60")
+#target_link_libraries(dat-engine PUBLIC fast_io:fast_io)
+
 # FMT
 CPMAddPackage("gh:fmtlib/fmt#11.2.0")
 target_link_libraries(dat-engine PUBLIC fmt::fmt)

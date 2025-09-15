@@ -27,39 +27,39 @@ namespace DatEngine::DatMaths {
     // TODO: See if any of these can be approximated
 
     // Sin
-    template<floating_point T>
+    template<TypeTraits::CFloating T>
     T sin(T value) {
         return std::sin(value);
     }
 
-    template<floating_point T>
+    template<TypeTraits::CFloating T>
     T asin(T value) {
         return std::asin(value);
     }
 
     // Cos
-    template<floating_point T>
+    template<TypeTraits::CFloating T>
     T cos(T value) {
         return std::cos(value);
     }
 
-    template<floating_point T>
+    template<TypeTraits::CFloating T>
     T acos(T value) {
         return std::acos(value);
     }
 
     // Tan
-    template<floating_point T>
+    template<TypeTraits::CFloating T>
     T tan(T value) {
         return std::tan(value);
     }
 
-    template<floating_point T>
+    template<TypeTraits::CFloating T>
     T atan(T value) {
         return std::atan(value);
     }
 
-    template<floating_point T>
+    template<TypeTraits::CFloating T>
     T atan2(T x, T y) {
         return std::atan2(x, y);
     }
@@ -77,7 +77,7 @@ namespace DatEngine::DatMaths {
      */
     template<typename T, typename TAlpha>
     concept lerpable = requires(T a, T b, TAlpha alpha) {
-        requires floating_point<TAlpha>;
+        requires TypeTraits::CFloating<TAlpha>;
         { a + b } -> std::same_as<T>;
         { a* alpha } -> std::same_as<T>;
         { b* alpha } -> std::same_as<T>;
@@ -94,7 +94,7 @@ namespace DatEngine::DatMaths {
      * @param alpha The value used to interpolate
      * @return the interpolated value
      */
-    template<typename T, floating_point TAlpha = float>
+    template<typename T, TypeTraits::CFloating TAlpha = float>
         requires lerpable<T, TAlpha>
     T lerp(T a, T b, TAlpha alpha) {
         return a * (1 - alpha) + b * alpha;
@@ -108,7 +108,7 @@ namespace DatEngine::DatMaths {
      * @param b The end of the range
      * @return A value representing har far between a & b the given value is
      */
-    template<floating_point T>
+    template<TypeTraits::CFloating T>
     T invLerp(T value, T a, T b) {
         return (value - a) / (b - a);
     }
@@ -121,7 +121,7 @@ namespace DatEngine::DatMaths {
      * @param value The value to convert
      * @return the value converted to smoothstep
      */
-    template<floating_point T>
+    template<TypeTraits::CFloating T>
     T smoothStep(T value) {
         value = clamp(value, 0, 1);
         return std::pow(value, 2) * (3 - (2 * value));
@@ -134,7 +134,7 @@ namespace DatEngine::DatMaths {
      * @param steps The number of steps to the end
      * @return the value converted to stepped
      */
-    template<floating_point T>
+    template<TypeTraits::CFloating T>
     T step(T value, int steps) {
         return std::floor(value * steps) / (steps - 1);
     }
@@ -148,7 +148,7 @@ namespace DatEngine::DatMaths {
      * @param exponent How extreme the effect is
      * @return the value converted to ease in
      */
-    template<floating_point T>
+    template<TypeTraits::CFloating T>
     T easeIn(T value, T exponent) {
         value = clamp(value, 0, 1);
         return std::pow(value, exponent);
@@ -162,7 +162,7 @@ namespace DatEngine::DatMaths {
      * @param exponent How extreme the effect is
      * @return the value converted to ease out
      */
-    template<floating_point T>
+    template<TypeTraits::CFloating T>
     T easeOut(T value, T exponent) {
         value = clamp(value, 0, 1);
         return 1 - std::pow(1 - value, exponent);
@@ -175,7 +175,7 @@ namespace DatEngine::DatMaths {
      * @param exponent How extreme the effect is
      * @return the value converted to ease in out
      */
-    template<floating_point T>
+    template<TypeTraits::CFloating T>
     T easeInOut(T value, T exponent) {
         value = clamp(value, 0, 1);
         return value < 0.5f ? easeIn(2 * value, exponent) * 0.5 : easeOut(2 * value - 1, exponent) * 0.5;
@@ -193,7 +193,7 @@ namespace DatEngine::DatMaths {
      * @return lh if it is smaller than rh, otherwise rh
      */
     template<typename T>
-        requires CComparableTo<T, T>
+        requires TypeTraits::CComparableTo<T, T>
     T min(T lh, T rh) {
         return lh < rh ? lh : rh;
     }
@@ -206,7 +206,7 @@ namespace DatEngine::DatMaths {
      * @return lh if it is bigger than rh, otherwise rh
      */
     template<typename T>
-        requires CComparableTo<T, T>
+        requires TypeTraits::CComparableTo<T, T>
     T max(T lh, T rh) {
         return lh > rh ? lh : rh;
     }
@@ -222,7 +222,7 @@ namespace DatEngine::DatMaths {
      * @return min if the value is less than min, max if the value is greater than max, value in all other cases
      */
     template<typename T>
-        requires CComparableTo<T, T>
+        requires TypeTraits::CComparableTo<T, T>
     T clamp(T value, T min, T max) {
         return DatMaths::max(DatMaths::min(value, max), min);
     }

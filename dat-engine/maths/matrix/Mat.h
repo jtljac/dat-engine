@@ -14,7 +14,7 @@ namespace DatEngine::DatMaths {
      * @tparam THeight The number of rows
      * @tparam TComponent The type of the cells in the matrix
      */
-    template<int TWidth, int THeight, CNumeric TComponent>
+    template<int TWidth, int THeight, TypeTraits::CNumeric TComponent>
     class Matrix {
         /** The type of Matrix made by transposing this one*/
         using TTranspose = Matrix<THeight, TWidth, TComponent>;
@@ -46,7 +46,7 @@ namespace DatEngine::DatMaths {
          * Initialises each column to given vectors
          * @param args The columns of the Matrix
          */
-        Matrix(const CConvertsTo<TColumn> auto&... args)
+        Matrix(const TypeTraits::CConvertsTo<TColumn> auto&... args)
             requires(sizeof...(args) == TWidth && TWidth * THeight > 1)
             : cells(args...) {};
 
@@ -62,7 +62,7 @@ namespace DatEngine::DatMaths {
          * Initialises each cell to given values
          * @param args The cells of the Matrix
          */
-        Matrix(const CConvertsTo<TComponent> auto&... args)
+        Matrix(const TypeTraits::CConvertsTo<TComponent> auto&... args)
             requires(sizeof...(args) == TWidth * THeight && TWidth * THeight > 1)
         {
             std::array<TComponent, TWidth * THeight> elements = std::array<TComponent, TWidth * THeight>({{args...}});
@@ -100,7 +100,7 @@ namespace DatEngine::DatMaths {
          * @tparam TOtherComponent The type of the other Matrix
          * @param otherMat The other Matrix
          */
-        template<int otherWidth, int otherHeight, CNumeric TOtherComponent>
+        template<int otherWidth, int otherHeight, TypeTraits::CNumeric TOtherComponent>
         explicit Matrix(const Matrix<otherWidth, otherHeight, TOtherComponent>& otherMat) {
             for (int i = 0; i < TWidth; ++i) {
                 for (int j = 0; j < THeight; ++j) {

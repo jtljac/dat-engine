@@ -6,6 +6,7 @@ target_sources(dat-engine PRIVATE
 
 add_subdirectory(util)
 add_subdirectory(container)
+add_subdirectory(event-bus)
 add_subdirectory(asset)
 add_subdirectory(maths)
 add_subdirectory(platform)
