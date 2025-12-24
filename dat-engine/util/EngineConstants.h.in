@@ -7,6 +7,13 @@ namespace DatEngine::Constants {
     constexpr std::string ENGINE_VERSION = "@DAT_ENGINE_VERSION@";
     constexpr std::string ENGINE_BUILD_DATE = "@DAT_ENGINE_BUILD_DATE@";
 
+    namespace Game {
+    constexpr std::string GAME_NAME = "@GAME_TITLE@";
+    constexpr std::string GAME_APP_ID = "@GAME_APPLICATION_ID@";
+    constexpr std::string GAME_VERSION = "@GAME_VERSION@";
+    constexpr std::string GAME_BUILD_DATE = "@GAME_BUILD_DATE@";
+    }
+
     namespace CVars {
         constexpr uint32_t MAX_INTEGER = @DAT_ENGINE_MAX_INTEGER_CVARS@;
         constexpr uint32_t MAX_BOOL = @DAT_ENGINE_MAX_BOOL_CVARS@;

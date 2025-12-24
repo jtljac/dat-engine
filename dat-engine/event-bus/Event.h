@@ -5,11 +5,10 @@ namespace DatEngine::Events{
     struct Event {};
 
     struct CancellableEvent : public Event {
-    private:
+    protected:
         bool cancelled = false;
     public:
-
-        bool isCancelled() const {
+        [[nodiscard]] bool isCancelled() const {
             return cancelled;
         }
 

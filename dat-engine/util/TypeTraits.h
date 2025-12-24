@@ -52,22 +52,29 @@ namespace DatEngine::TypeTraits {
 
     /**
      * Concept for testing if a class is a subclass of another
+     *
+     * This is actually just std::derived_from<>, I just prefer this syntax
+     *
      * @tparam T The class to test
      * @tparam TBase The base class to check if T is a child of
      */
     template<typename T, typename TBase>
-    concept CSubClass = std::is_base_of_v<TBase, T>;
+    concept CSubClass = std::derived_from<T, TBase>;
 
     /**
      * Concept for testing if a class is a super class of another
+     *
+     * This is actually just std::derived_from<>, I just prefer this syntax
+     *
      * @tparam T The class to test
      * @tparam TSub The child class to check if T is a superclass of
      */
     template<typename T, typename TSub>
-    concept CBaseClass = std::is_base_of_v<T, TSub>;
+    concept CBaseClass = std::derived_from<TSub, T>;
 
     /**
-     * Concept for testing if a type is exactly the type `exactType`
+     * Concept for testing if a type is exactly the type `TExactType`
+     *
      * @tparam T The type to test
      * @tparam TExact The class to check if `T` matches
      */
@@ -76,6 +83,7 @@ namespace DatEngine::TypeTraits {
 
     /**
      * Concept for testing if a type is convertable to another type
+     *
      * @tparam T The class to test
      * @tparam TConvertTo The type to check T can convert to
      */
@@ -84,6 +92,7 @@ namespace DatEngine::TypeTraits {
 
     /**
      * Concept for testing if a type is comparable to another type
+     *
      * @tparam TLh The type on the left hand of the comparison
      * @tparam TRh The type on the right hand of the comparison
      */

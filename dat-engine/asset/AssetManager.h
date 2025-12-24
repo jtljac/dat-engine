@@ -10,46 +10,33 @@
 
 #include "Asset.h"
 #include "AssetRef.h"
+#include "service/EngineService.h"
 
 using TypeInfoRef = std::reference_wrapper<const std::type_info>;
 
 namespace DatEngine::Assets {
-    struct TypeInfoHasher {
-        std::size_t operator()(TypeInfoRef code) const
-        {
-            return code.get().hash_code();
-        }
-    };
-
-    struct TypeInfoEqualTo {
-        bool operator()(TypeInfoRef lhs, TypeInfoRef rhs) const
-        {
-            return lhs.get() == rhs.get();
-        }
-    };
-
-    class AssetManager {
+    class AssetManager : public Service::EngineService {
         /** Cache for engine-assets already in use */
-        // std::unordered_map<Dvfs::DatPath, AssetRef<>> assetCache;
+        std::unordered_map<Dvfs::DatPath, AssetRef<>> assetCache;
 
         Dvfs::DatVFS vfs;
 
         template<TypeTraits::CSubClass<Asset> TAssetType>
         AssetRef<TAssetType> getAsset(const Dvfs::DatPath& path, const bool ensureLoaded = false) {
             // Check cache
-            // if (assetCache.contains(path)) {
-            //     return assetCache.at(path).clone<TAssetType>();
-            // }
-            //
-            // // Create new asset ref
-            // TAssetType* asset = new TAssetType(this, path);
-            // assetCache.emplace(path, asset);
+            if (assetCache.contains(path)) {
+                return assetCache.at(path).clone<TAssetType>();
+            }
+
+            // Create new asset ref
+            TAssetType* asset = new TAssetType(this, path);
+            assetCache.emplace(path, asset);
 
             if (ensureLoaded) {
                 // TODO: add to load queue
             }
 
-            // return AssetRef<TAssetType>::createAssetRef(asset);
+            return AssetRef<TAssetType>::createAssetRef(asset);
         }
 
         // Garbage collection

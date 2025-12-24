@@ -10,7 +10,7 @@
 #include "service/EngineService.h"
 
 namespace DatEngine::Events {
-    class EventBus : public Service::EngineService {
+    class EventBus final : public Service::EngineService {
         std::unordered_multimap<std::type_index, std::function<void(void*)>> listenerMap;
     public:
         void init() override {

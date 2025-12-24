@@ -1,16 +1,16 @@
 #ifndef ASSETREF_INL
 #define ASSETREF_INL
+
 template<TypeTraits::CSubClass<Asset> TAssetType>
 template<TypeTraits::CBaseClass<Asset> TOtherAssetType>
-requires(TypeTraits::CExactClass<TOtherAssetType, TAssetType> || TypeTraits::CBaseClass<TOtherAssetType, TAssetType> ||
-         TypeTraits::CSubClass<TOtherAssetType, TAssetType>)
+requires(TypeTraits::CConvertsTo<TAssetType, TOtherAssetType>)
 AssetRef<TAssetType>::AssetRef(const AssetRef& otherAssetRef) : asset(static_cast<TAssetType>(otherAssetRef.asset)), refCount(otherAssetRef.refCount) {
     ++(*refCount);
 }
 
 template<TypeTraits::CSubClass<Asset> TAssetType>
 AssetRef<TAssetType>::~AssetRef() {
-    --(*refCount);
+    if (refCount != nullptr) --(*refCount);
 }
 
 template<TypeTraits::CSubClass<Asset> TAssetType>
@@ -25,7 +25,7 @@ TAssetType& AssetRef<TAssetType>::operator*() {
 
 template<TypeTraits::CSubClass<Asset> TAssetType>
 TAssetType& AssetRef<TAssetType>::operator->() {
-    return asset;
+    return *asset;
 }
 
 template<TypeTraits::CSubClass<Asset> TAssetType>

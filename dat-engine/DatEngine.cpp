@@ -30,6 +30,7 @@ bool Engine::preInit() {
 
 void Engine::init(DatGpu::IGpu* renderer) {
     instance = new Engine;
+    SDL_SetAppMetadata()
     if (!SDL_Init(SDL_INIT_EVENTS | SDL_INIT_VIDEO)) {
         throw DatException(fmt::format("Failed to initialize SDL - %s", SDL_GetError()));
     }
